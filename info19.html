@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart RFID Lock — AeroTechProject</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:      #06080f;
+    --surface: rgba(255,255,255,0.03);
+    --surface2: rgba(255,255,255,0.055);
+    --border:  rgba(255,255,255,0.08);
+    --accent:  #00d4ff;
+    --text:    #e8f0ff;
+    --muted:   rgba(232,240,255,0.45);
+    --code-bg: #0d1117;
+    --radius:  14px;
+    --nav-h:   64px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    background: var(--accent);
+    border-radius: 50%;
+    filter: blur(160px);
+    opacity: 0.06;
+    top: -200px; right: -150px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ──────────────────────────────── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    background: rgba(6,8,15,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--accent); }
+  .back-btn svg { transition: transform 0.2s; }
+  .back-btn:hover svg { transform: translateX(-3px); }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo-text span { color: var(--accent); }
+
+  .header-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ─── HERO ────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 60px 0 0;
+    overflow: hidden;
+  }
+
+  .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px 40px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .breadcrumb span { color: var(--accent); }
+
+  .project-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 8vw, 72px);
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .tag {
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .tag-accent {
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--accent);
+  }
+  .tag-muted {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ─── PROJECT IMAGE ───────────────────────── */
+  .project-image {
+    width: 100%;
+    margin: 0 auto 0;
+    display: block;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,212,255,0.08);
+  }
+  .project-image img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 500px;
+  }
+
+  /* ─── CONTENT ─────────────────────────────── */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .block { margin-bottom: 48px; }
+
+  .block-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .block h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .block p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(232,240,255,0.75);
+  }
+
+  /* ─── COMPONENTS GRID ─────────────────────── */
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .component-card {
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .component-card:hover {
+    border-color: rgba(0,212,255,0.25);
+    background: var(--surface2);
+  }
+
+  .component-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.15);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .component-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* ─── LIST ────────────────────────────────── */
+  .styled-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .styled-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+    color: rgba(232,240,255,0.75);
+    line-height: 1.6;
+  }
+
+  .styled-list li::before {
+    content: '→';
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ─── CODE ────────────────────────────────── */
+  .code-block {
+    position: relative;
+    margin-top: 4px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .code-lang {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--accent);
+    padding: 5px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover { background: rgba(0,212,255,0.15); }
+  .copy-btn.copied { background: rgba(0,200,80,0.15); border-color: rgba(0,200,80,0.3); color: #00c850; }
+
+  pre {
+    background: var(--code-bg);
+    padding: 24px;
+    overflow-x: auto;
+    margin: 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c9d1d9;
+  }
+
+  /* ─── DIVIDER ──────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 48px 0;
+  }
+
+  /* ─── RESULTS / IMPROVEMENTS ──────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .info-box {
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .info-box.green { border-color: rgba(0,200,80,0.2); background: rgba(0,200,80,0.04); }
+  .info-box.purple { border-color: rgba(123,97,255,0.2); background: rgba(123,97,255,0.04); }
+
+  .info-box h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .info-box.green h3 { color: #00c850; }
+  .info-box.purple h3 { color: #7b61ff; }
+
+  /* ─── FOOTER ───────────────────────────────── */
+  footer {
+    padding: 32px 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+  .footer-logo span { color: var(--accent); }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ─── RESPONSIVE ───────────────────────────── */
+  @media (max-width: 640px) {
+    header { padding: 0 20px; }
+    .header-tag { display: none; }
+    .hero-inner { padding: 0 20px 32px; }
+    .content { padding: 40px 20px 60px; }
+    .two-col { grid-template-columns: 1fr; }
+    .components-grid { grid-template-columns: 1fr 1fr; }
+    footer { padding: 24px 20px; }
+    pre { font-size: 12px; padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ══════════════════════════════════ -->
+<header>
+  <a href="index.html" class="back-btn">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+    Back
+  </a>
+  <a href="index.html" class="logo-text">Aero<span>Tech</span></a>
+  <span class="header-tag">PROJECT #19</span>
+</header>
+
+<!-- ═══ HERO ═════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="breadcrumb">
+      AeroTechProject <span>/</span> Security <span>/</span> RFID Lock
+    </div>
+    <h1 class="project-title">Arduino<br>RFID Door<br>Lock System</h1>
+    <div class="tag-row">
+      <span class="tag tag-accent">Security</span>
+      <span class="tag tag-accent">Arduino</span>
+      <span class="tag tag-muted">MFRC522</span>
+      <span class="tag tag-muted">Servo Motor</span>
+      <span class="tag tag-muted">SPI</span>
+      <span class="tag tag-muted">LED</span>
+    </div>
+  </div>
+
+  <div class="project-image" style="margin: 0 32px; max-width: calc(100% - 64px);">
+    <img src="photo19.jpg" alt="Arduino RFID Door Lock System">
+  </div>
+</section>
+
+<!-- ═══ CONTENT ══════════════════════════════════ -->
+<div class="content">
+
+  <!-- Abstract -->
+  <div class="block">
+    <div class="block-label">// Overview</div>
+    <h2>Abstract</h2>
+    <p>
+      This project demonstrates a simple RFID access control system using an Arduino Uno
+      and an MFRC522 RFID module. When an authorized RFID card is detected, the system
+      activates a servo motor to simulate unlocking a door and turns on a green LED.
+      If an unauthorized card is scanned, a red LED indicates access denial.
+    </p>
+  </div>
+
+  <!-- Objective -->
+  <div class="block">
+    <div class="block-label">// Goals</div>
+    <h2>Objective</h2>
+    <ul class="styled-list">
+      <li>Build a basic RFID security system</li>
+      <li>Learn RFID communication with Arduino</li>
+      <li>Control physical devices based on authentication</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Components -->
+  <div class="block">
+    <div class="block-label">// Hardware</div>
+    <h2>Components</h2>
+    <div class="components-grid">
+      <div class="component-card">
+        <div class="component-icon">⚡</div>
+        <div class="component-name">Arduino Uno</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">📡</div>
+        <div class="component-name">MFRC522 RFID</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">⚙️</div>
+        <div class="component-name">Servo Motor</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">🟢</div>
+        <div class="component-name">Green LED</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">🔴</div>
+        <div class="component-name">Red LED</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">〰️</div>
+        <div class="component-name">Resistors</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">🔌</div>
+        <div class="component-name">Breadboard & Wires</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Working Principle -->
+  <div class="block">
+    <div class="block-label">// How It Works</div>
+    <h2>Working Principle</h2>
+    <p>
+      The MFRC522 RFID module reads the UID of an RFID card. The Arduino compares the UID
+      with a predefined authorized UID stored in the code. If the UID matches, the servo motor
+      rotates to unlock the mechanism and the green LED turns on for 3 seconds.
+      If the UID does not match, the system denies access and activates the red LED.
+    </p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Code -->
+  <div class="block">
+    <div class="block-label">// Source Code</div>
+    <h2>Code</h2>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-r"></span>
+          <span class="dot-y"></span>
+          <span class="dot-g"></span>
+        </div>
+        <span class="code-lang">C++ / Arduino</span>
+        <button class="copy-btn" id="copyBtn">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+<pre id="codeContent">#include &lt;SPI.h&gt;          // Library for SPI communication with the RFID module
+#include &lt;MFRC522.h&gt;      // Library for working with RC522 RFID modules
+#include &lt;Servo.h&gt;        // Library for controlling servo motors
+
+// Define pins for the RFID module
+#define SS_PIN 10         // Slave Select (CS) pin for RFID
+#define RST_PIN 9         // Reset pin for RFID
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create an RFID object
+Servo myServo;                      // Create a servo object
+
+// LED and servo pins
+int greenLED = 6;                   // Green LED for authorized access
+int redLED   = 5;                   // Red LED for denied access
+int servoPin = 3;                   // Pin for connecting the servo
+
+// Authorized card UID (example)
+byte authorizedUID[4] = {0xDE, 0xAD, 0xBE, 0xEF};
+
+void setup() {
+    Serial.begin(9600);             // Start serial communication
+    SPI.begin();                    // Initialize SPI bus
+    mfrc522.PCD_Init();             // Initialize the RFID reader
+
+    pinMode(greenLED, OUTPUT);
+    pinMode(redLED,   OUTPUT);
+
+    myServo.attach(servoPin);
+    myServo.write(0);               // Set servo to initial position (0°)
+
+    Serial.println("Scan RFID card...");
+}
+
+void loop() {
+    if (!mfrc522.PICC_IsNewCardPresent()) return;
+    if (!mfrc522.PICC_ReadCardSerial())   return;
+
+    boolean access = true;
+
+    // Compare scanned UID with authorized UID
+    for (byte i = 0; i &lt; 4; i++) {
+        if (mfrc522.uid.uidByte[i] != authorizedUID[i]) {
+            access = false;
+        }
+    }
+
+    if (access) {
+        digitalWrite(greenLED, HIGH);
+        digitalWrite(redLED,   LOW);
+        myServo.write(180);         // Rotate servo to open position
+        delay(3000);
+        myServo.write(0);           // Return to closed position
+        digitalWrite(greenLED, LOW);
+    } else {
+        digitalWrite(redLED, HIGH);
+        delay(2000);
+        digitalWrite(redLED, LOW);
+    }
+
+    mfrc522.PICC_HaltA();           // Halt communication with card
+}</pre>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Results + Future -->
+  <div class="two-col">
+    <div class="info-box green">
+      <h3>✓ Results</h3>
+      <ul class="styled-list">
+        <li>Reliable RFID card detection</li>
+        <li>Clear visual access indication</li>
+        <li>Simple and effective access control</li>
+      </ul>
+    </div>
+    <div class="info-box purple">
+      <h3>↑ Future Improvements</h3>
+      <ul class="styled-list">
+        <li>Multiple authorized cards</li>
+        <li>LCD display for user feedback</li>
+        <li>WiFi logging using ESP32</li>
+        <li>Mobile app integration</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ FOOTER ════════════════════════════════════ -->
+<footer>
+  <div class="footer-logo">Aero<span>Tech</span>Project</div>
+  <div class="footer-copy">© 2026 AeroTechProject</div>
+</footer>
+
+<script>
+  const copyBtn = document.getElementById('copyBtn');
+  const codeContent = document.getElementById('codeContent');
+
+  copyBtn.addEventListener('click', () => {
+    const tmp = document.createElement('textarea');
+    tmp.innerHTML = codeContent.innerHTML;
+    const text = tmp.value;
+
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied!`;
+
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
+      }, 2000);
+    });
+  });
+</script>
+</body>
+</html>
