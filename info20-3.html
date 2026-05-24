@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 2-Axis Stabilization System — AeroTechProject</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:       #ffffff;
+    --surface:  rgba(0,0,0,0.03);
+    --surface2: rgba(0,0,0,0.06);
+    --border:   rgba(0,0,0,0.1);
+    --accent:   #000000;
+    --accent2:  #444444;
+    --text:     #0a0a0a;
+    --muted:    rgba(10,10,10,0.45);
+    --code-bg:  #0d1117;
+    --radius:   14px;
+    --nav-h:    68px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ─── HEADER ──────────────────────────────── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s, gap 0.2s;
+  }
+  .back-btn:hover { color: var(--text); gap: 12px; }
+  .back-btn svg { transition: transform 0.2s; }
+  .back-btn:hover svg { transform: translateX(-3px); }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .header-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ─── HERO ────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 60px 0 0;
+    overflow: hidden;
+  }
+
+  .hero-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px 40px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .breadcrumb span { color: var(--accent); font-weight: 700; }
+
+  .project-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(44px, 9vw, 80px);
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .tag {
+    padding: 5px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-family: 'Space Mono', monospace;
+  }
+  .tag-accent {
+    background: var(--accent);
+    color: #fff;
+  }
+  .tag-muted {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--accent2);
+  }
+
+  /* ─── PROJECT IMAGE ───────────────────────── */
+  .project-image {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.12);
+  }
+  .project-image img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 520px;
+  }
+
+  /* ─── CONTENT ─────────────────────────────── */
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .block {
+    margin-bottom: 52px;
+  }
+
+  .block-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .block h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+    margin-bottom: 18px;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
+    padding-bottom: 4px;
+  }
+
+  .block p {
+    font-size: 16px;
+    line-height: 1.85;
+    color: rgba(10,10,10,0.72);
+  }
+
+  /* ─── COMPONENTS GRID ─────────────────────── */
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .component-card {
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .component-card:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+
+  .component-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .component-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* ─── LIST ────────────────────────────────── */
+  .styled-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .styled-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+    color: rgba(10,10,10,0.72);
+    line-height: 1.6;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+  }
+  .styled-list li:hover { border-color: var(--accent); }
+
+  .styled-list li::before {
+    content: '→';
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ─── CODE ────────────────────────────────── */
+  .code-block {
+    position: relative;
+    margin-top: 8px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #161b22;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .code-lang {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    padding: 5px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    transition: background 0.2s, color 0.2s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  .copy-btn.copied { background: rgba(40,200,80,0.15); border-color: rgba(40,200,80,0.3); color: #28c840; }
+
+  pre {
+    background: var(--code-bg);
+    padding: 28px 24px;
+    overflow-x: auto;
+    margin: 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    color: #c9d1d9;
+  }
+
+  .kw  { color: #ff79c6; }
+  .fn  { color: #8be9fd; }
+  .str { color: #f1fa8c; }
+  .cm  { color: #6272a4; font-style: italic; }
+  .nb  { color: #50fa7b; }
+  .num { color: #bd93f9; }
+
+  /* ─── DIVIDER ─────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 52px 0;
+  }
+
+  /* ─── RESULTS / IMPROVEMENTS ─────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .info-box {
+    padding: 28px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .info-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+  }
+  .info-box.green {
+    border-color: rgba(0,180,80,0.25);
+    background: rgba(0,180,80,0.04);
+  }
+  .info-box.purple {
+    border-color: rgba(100,80,220,0.25);
+    background: rgba(100,80,220,0.04);
+  }
+
+  .info-box h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .info-box.green h3 { color: #00b450; }
+  .info-box.purple h3 { color: #6450dc; }
+
+  .info-box .styled-list li {
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    border-radius: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-box .styled-list li:last-child { border-bottom: none; }
+
+  /* ─── FOOTER ─────────────────────────────── */
+  footer {
+    padding: 36px 40px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: #0a0a0a;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: #ffffff;
+  }
+  .footer-logo span { color: #aaaaaa; }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* ─── SCROLL REVEAL ───────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ─── RESPONSIVE ─────────────────────────── */
+  @media (max-width: 640px) {
+    header { padding: 0 20px; }
+    .header-tag { display: none; }
+    .hero-inner { padding: 0 20px 28px; }
+    .content { padding: 40px 20px 60px; }
+    .two-col { grid-template-columns: 1fr; }
+    .components-grid { grid-template-columns: 1fr 1fr; }
+    footer { padding: 24px 20px; }
+    pre { font-size: 12px; padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════ -->
+<header>
+  <a href="index.html" class="back-btn" onclick="if(document.referrer) { event.preventDefault(); history.back(); }">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+    Back
+  </a>
+  <a href="index.html" class="logo-text">AeroTechProject</a>
+  <span class="header-tag">ESP32 · 2-AXIS</span>
+</header>
+
+<!-- ═══ HERO ══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner reveal">
+    <div class="breadcrumb">
+      AeroTechProject <span>/</span> Stabilization <span>/</span> ESP32 2-Axis
+    </div>
+    <h1 class="project-title">ESP32 2-Axis<br>Stabilization<br>System</h1>
+    <div class="tag-row">
+      <span class="tag tag-accent">Stabilization</span>
+      <span class="tag tag-accent">ESP32</span>
+      <span class="tag tag-muted">MPU6050</span>
+      <span class="tag tag-muted">Servo SG90</span>
+      <span class="tag tag-muted">I2C</span>
+    </div>
+  </div>
+
+  <div class="project-image reveal">
+    <img src="photo20p.jpg" alt="ESP32 2-Axis Stabilization System">
+  </div>
+</section>
+
+<!-- ═══ CONTENT ═══════════════════════════════════ -->
+<div class="content">
+
+  <div class="block reveal">
+    <div class="block-label">// Overview</div>
+    <h2>Abstract</h2>
+    <p>
+      This project demonstrates a 2-axis stabilization system using ESP32 and MPU6050.
+      The system reads motion data and controls two servo motors to stabilize movement
+      in both roll (left-right) and pitch (forward-backward) directions.
+    </p>
+  </div>
+
+  <div class="block reveal">
+    <div class="block-label">// Goals</div>
+    <h2>Objective</h2>
+    <ul class="styled-list">
+      <li>Build a 2-axis stabilization system</li>
+      <li>Learn MPU6050 motion sensing</li>
+      <li>Control servo motors based on calculated angle</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block reveal">
+    <div class="block-label">// Hardware</div>
+    <h2>Components</h2>
+    <div class="components-grid">
+      <div class="component-card">
+        <div class="component-icon">⚡</div>
+        <div class="component-name">ESP32</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">📐</div>
+        <div class="component-name">MPU6050 Gyroscope</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">⚙️</div>
+        <div class="component-name">2× Servo SG90</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">🔋</div>
+        <div class="component-name">MB102 Power Supply</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">〰️</div>
+        <div class="component-name">Capacitor 680µF</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">🔌</div>
+        <div class="component-name">Breadboard & Wires</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block reveal">
+    <div class="block-label">// How It Works</div>
+    <h2>Working Principle</h2>
+    <p>
+      The MPU6050 sensor measures acceleration on X and Y axes.
+      The ESP32 calculates roll and pitch angles using these values.
+      Based on the angle, two servo motors adjust their position to keep the system stable.
+      One servo controls left-right movement, and the other controls forward-backward tilt.
+    </p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block reveal">
+    <div class="block-label">// Source Code</div>
+    <h2>Code</h2>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-r"></span>
+          <span class="dot-y"></span>
+          <span class="dot-g"></span>
+        </div>
+        <span class="code-lang">C++ / ESP32</span>
+        <button class="copy-btn" id="copyBtn">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+<pre id="codeContent">#include &lt;Wire.h&gt;
+#include &lt;MPU6050.h&gt;
+#include &lt;ESP32Servo.h&gt;
+
+MPU6050 mpu;
+
+Servo servoRoll;
+Servo servoPitch;
+
+float roll, pitch;
+
+void setup() {
+  Wire.begin(21, 22);
+  mpu.initialize();
+
+  servoRoll.attach(18);
+  servoPitch.attach(19);
+}
+
+void loop() {
+  int16_t ax, ay, az;
+  mpu.getAcceleration(&amp;ax, &amp;ay, &amp;az);
+
+  roll  = atan2(ay, az) * 180 / PI;
+  pitch = atan2(ax, az) * 180 / PI;
+
+  int rollPos  = map(roll, -90, 90, 0, 180);
+  int pitchPos = map(pitch, -90, 90, 0, 180);
+
+  rollPos  = constrain(rollPos, 0, 180);
+  pitchPos = constrain(pitchPos, 0, 180);
+
+  servoRoll.write(180 - rollPos);
+  servoPitch.write(pitchPos);
+
+  delay(20);
+}</pre>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="two-col reveal">
+    <div class="info-box green">
+      <h3>✓ Results</h3>
+      <ul class="styled-list">
+        <li>Stable movement in two axes</li>
+        <li>Smooth servo response</li>
+        <li>Real-time angle correction</li>
+      </ul>
+    </div>
+    <div class="info-box purple">
+      <h3>↑ Future Improvements</h3>
+      <ul class="styled-list">
+        <li>Add gyro filtering (reduce drift)</li>
+        <li>Use PID control</li>
+        <li>Upgrade to brushless gimbal</li>
+        <li>Add wireless control (NRF24 / WiFi)</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ FOOTER ════════════════════════════════════ -->
+<footer>
+  <div class="footer-logo">Aero<span>Tech</span>Project</div>
+  <div class="footer-copy">© 2026 AeroTechProject</div>
+</footer>
+
+<script>
+  // Copy button
+  const copyBtn = document.getElementById('copyBtn');
+  const codeContent = document.getElementById('codeContent');
+  copyBtn.addEventListener('click', () => {
+    const tmp = document.createElement('textarea');
+    tmp.innerHTML = codeContent.innerHTML;
+    navigator.clipboard.writeText(tmp.value).then(() => {
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied!`;
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
+      }, 2000);
+    });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
