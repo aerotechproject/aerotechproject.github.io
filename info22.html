@@ -3,16 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ESP32 Wireless Yaw & Pitch Control System — AeroTechProject</title>
+<title>ESP32 WIRELESS YAW & PITCH CONTROL SYSTEM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" type="image/jpeg" href="logo222.jpg">
-<link rel="apple-touch-icon" href="logo222.jpg">
-<meta name="theme-color" content="#ffffff">
-<meta property="og:title" content="ESP32 Wireless Yaw & Pitch Control System — AeroTechProject">
-<meta property="og:description" content="Wireless motion control with MPU6050, NRF24L01 and servo motors">
-<meta property="og:image" content="photo22.jpg">
 
 <style>
   :root {
@@ -41,7 +35,7 @@
     overflow-x: hidden;
   }
 
-  /* ─── HEADER ──────────────────────────── */
+  /* ─── HEADER ──────────────────────────────── */
   header {
     position: sticky;
     top: 0;
@@ -86,11 +80,17 @@
     letter-spacing: 1px;
   }
 
-  /* ─── HERO ────────────────────────────── */
+  /* ─── HERO ────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 60px 0 0;
+    overflow: hidden;
+  }
+
   .hero-inner {
     max-width: 900px;
     margin: 0 auto;
-    padding: 56px 32px 36px;
+    padding: 0 32px 40px;
   }
 
   .breadcrumb {
@@ -119,7 +119,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 36px;
+    margin-bottom: 32px;
   }
 
   .tag {
@@ -130,10 +130,17 @@
     letter-spacing: 0.5px;
     font-family: 'Space Mono', monospace;
   }
-  .tag-accent { background: var(--accent); color: #fff; }
-  .tag-muted  { background: var(--surface2); border: 1px solid var(--border); color: var(--accent2); }
+  .tag-accent {
+    background: var(--accent);
+    color: #fff;
+  }
+  .tag-muted {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--accent2);
+  }
 
-  /* ─── PROJECT IMAGE ───────────────────── */
+  /* ─── PROJECT IMAGE ───────────────────────── */
   .project-image {
     width: 100%;
     max-width: 900px;
@@ -151,7 +158,7 @@
     max-height: 520px;
   }
 
-  /* ─── CONTENT ─────────────────────────── */
+  /* ─── CONTENT ─────────────────────────────── */
   .content {
     max-width: 900px;
     margin: 0 auto;
@@ -160,7 +167,9 @@
     z-index: 1;
   }
 
-  .block { margin-bottom: 52px; }
+  .block {
+    margin-bottom: 52px;
+  }
 
   .block-label {
     font-family: 'Space Mono', monospace;
@@ -188,10 +197,10 @@
     color: rgba(10,10,10,0.72);
   }
 
-  /* ─── COMPONENTS ──────────────────────── */
+  /* ─── COMPONENTS GRID ─────────────────────── */
   .components-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 12px;
     margin-top: 8px;
   }
@@ -204,16 +213,19 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+    cursor: default;
   }
   .component-card:hover {
     border-color: var(--accent);
+    background: var(--surface2);
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.1);
   }
 
   .component-icon {
-    width: 36px; height: 36px;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
     background: var(--accent);
     display: grid;
@@ -223,12 +235,12 @@
   }
 
   .component-name {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--text);
   }
 
-  /* ─── LIST ────────────────────────────── */
+  /* ─── LIST ────────────────────────────────── */
   .styled-list {
     list-style: none;
     display: flex;
@@ -262,65 +274,87 @@
     margin-top: 1px;
   }
 
-  /* ─── FLOW DIAGRAM ────────────────────── */
-  .flow {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 8px;
-  }
-
-  .flow-step {
-    padding: 24px 20px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    text-align: center;
+  /* ─── CODE ────────────────────────────────── */
+  .code-block {
     position: relative;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .flow-step:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+    margin-top: 8px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
   }
 
-  .flow-step::after {
-    content: '→';
-    position: absolute;
-    right: -14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: var(--muted);
-    z-index: 1;
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #161b22;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
   }
-  .flow-step:last-child::after { display: none; }
 
-  .flow-icon { font-size: 28px; margin-bottom: 10px; }
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
 
-  .flow-title {
+  .code-lang {
     font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    padding: 5px 14px;
+    border-radius: 8px;
+    cursor: pointer;
     font-size: 12px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+    transition: background 0.2s, color 0.2s;
   }
+  .copy-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  .copy-btn.copied { background: rgba(40,200,80,0.15); border-color: rgba(40,200,80,0.3); color: #28c840; }
 
-  .flow-desc {
+  pre {
+    background: var(--code-bg);
+    padding: 28px 24px;
+    overflow-x: auto;
+    margin: 0;
+    font-family: 'Space Mono', monospace;
     font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
+    line-height: 1.75;
+    color: #c9d1d9;
   }
 
-  /* ─── DIVIDER ─────────────────────────── */
+  .kw  { color: #ff79c6; }
+  .fn  { color: #8be9fd; }
+  .str { color: #f1fa8c; }
+  .cm  { color: #6272a4; font-style: italic; }
+  .nb  { color: #50fa7b; }
+  .num { color: #bd93f9; }
+
+  /* ─── DIVIDER ─────────────────────────────── */
   .divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--border), transparent);
     margin: 52px 0;
   }
 
-  /* ─── TWO COLUMN ──────────────────────── */
+  /* ─── RESULTS / IMPROVEMENTS ─────────────── */
   .two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -365,7 +399,7 @@
   }
   .info-box .styled-list li:last-child { border-bottom: none; }
 
-  /* ─── FOOTER ──────────────────────────── */
+  /* ─── FOOTER ─────────────────────────────── */
   footer {
     padding: 36px 40px;
     border-top: 1px solid rgba(255,255,255,0.1);
@@ -391,7 +425,7 @@
     color: rgba(255,255,255,0.35);
   }
 
-  /* ─── REVEAL ──────────────────────────── */
+  /* ─── SCROLL REVEAL ───────────────────────── */
   .reveal {
     opacity: 0;
     transform: translateY(28px);
@@ -399,24 +433,24 @@
   }
   .reveal.visible { opacity: 1; transform: none; }
 
-  /* ─── RESPONSIVE ──────────────────────── */
+  /* ─── RESPONSIVE ─────────────────────────── */
   @media (max-width: 640px) {
     header { padding: 0 20px; }
     .header-tag { display: none; }
     .hero-inner { padding: 0 20px 28px; }
     .content { padding: 40px 20px 60px; }
-    .two-col, .flow { grid-template-columns: 1fr; }
-    .flow-step::after { display: none; }
+    .two-col { grid-template-columns: 1fr; }
     .components-grid { grid-template-columns: 1fr 1fr; }
     footer { padding: 24px 20px; }
+    pre { font-size: 12px; padding: 16px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ═══ HEADER ═══════════════════════════════ -->
+<!-- ═══ HEADER ═══════════════════════════════════ -->
 <header>
-  <a href="index.html" class="back-btn" onclick="if(document.referrer){event.preventDefault();history.back();}">
+  <a href="index.html" class="back-btn" onclick="if(document.referrer) { event.preventDefault(); history.back(); }">
     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
     Back
   </a>
@@ -424,34 +458,32 @@
   <span class="header-tag">ESP32 · NRF24</span>
 </header>
 
-<!-- ═══ HERO ════════════════════════════════ -->
-<div class="hero-inner reveal">
-  <div class="breadcrumb">
-    AeroTechProject <span>/</span> Wireless Control <span>/</span> ESP32 NRF24
-  </div>
-  <h1 class="project-title">ESP32 Wireless<br>Yaw & Pitch<br>Control System</h1>
-  <div class="tag-row">
-    <span class="tag tag-accent">Wireless Control</span>
-    <span class="tag tag-accent">ESP32</span>
-    <span class="tag tag-muted">MPU6050</span>
-    <span class="tag tag-muted">NRF24L01</span>
-    <span class="tag tag-muted">2x Servo</span>
-  </div>
-</div>
+<!-- ═══ HERO ══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner reveal">
+    <div class="breadcrumb">
+      AeroTechProject <span>/</span> Transmitter&Receiver<span>/</span> ESP32 NRF24
+    </div>
+    <h1 class="project-title">ESP32 NRF24<br>Tansmitter&Receiver<br>System</h1>
+    <div class="tag-row">
+      <span class="tag tag-accent">Transmitter&Receiver</span>
+      <span class="tag tag-accent">ESP32</span>
+      <span class="tag tag-muted">NRF24L01</span>
+      <span class="tag tag-muted">NRF24 Adapter</span>
 
-<div class="project-image reveal">
-  <img src="1kmrange.png" alt="ESP32 Wireless Yaw and Pitch Control System">
-</div>
+    </div>
+  </div>
+</section>
 
-<!-- ═══ CONTENT ══════════════════════════════ -->
+<!-- ═══ CONTENT ═══════════════════════════════════ -->
 <div class="content">
 
   <div class="block reveal">
     <div class="block-label">// Overview</div>
     <h2>Abstract</h2>
     <p>
-      This project demonstrates a wireless motion control system using an MPU6050 sensor, two ESP32 boards and NRF24L01 transceivers.
-      Motion data is transmitted in real time from the transmitter to the receiver, where two servo motors reproduce the yaw and pitch movements wirelessly.
+      In this project I created a long-range wireless communication system using two ESP32 boards and NRF24L01 modules.
+When the button is pressed on the transmitter side, the receiver instantly turns on the LED wirelessly 
     </p>
   </div>
 
@@ -459,11 +491,7 @@
     <div class="block-label">// Goals</div>
     <h2>Objective</h2>
     <ul class="styled-list">
-      <li>Build a wireless yaw and pitch control system</li>
-      <li>Learn MPU6050 motion sensing</li>
-      <li>Transmit data using NRF24L01</li>
-      <li>Control two servo motors remotely</li>
-      <li>Create a base platform for RC and robotics projects</li>
+      <li>Build a 6 channel Transmitter&Receiver system</li>
     </ul>
   </div>
 
@@ -473,52 +501,124 @@
     <div class="block-label">// Hardware</div>
     <h2>Components</h2>
     <div class="components-grid">
-      <div class="component-card"><div class="component-icon">⚡</div><div class="component-name">ESP32 Transmitter</div></div>
-      <div class="component-card"><div class="component-icon">⚡</div><div class="component-name">ESP32 Receiver</div></div>
-      <div class="component-card"><div class="component-icon">📐</div><div class="component-name">MPU6050</div></div>
-      <div class="component-card"><div class="component-icon">⚙️</div><div class="component-name">2× Servo Motors</div></div>
-      <div class="component-card"><div class="component-icon">📡</div><div class="component-name">2× NRF24L01</div></div>
-      <div class="component-card"><div class="component-icon">🔌</div><div class="component-name">NRF24 Adapter</div></div>
-      <div class="component-card"><div class="component-icon">🔋</div><div class="component-name">Power Supply</div></div>
-      <div class="component-card"><div class="component-icon">〰️</div><div class="component-name">Jumper Wires</div></div>
+      <div class="component-card">
+        <div class="component-icon">⚡</div>
+        <div class="component-name">ESP32</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">📐</div>
+        <div class="component-name">NRF24L01</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">⚙️</div>
+        <div class="component-name">2x NRF24 Adapter </div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">〰️</div>
+        <div class="component-name">Capacitor 100µF</div>
+      </div>
+      <div class="component-card">
+        <div class="component-icon">🔌</div>
+        <div class="component-name">Breadboard & Wires</div>
+      </div>
     </div>
   </div>
 
   <div class="block reveal">
     <div class="block-label">// How It Works</div>
     <h2>Working Principle</h2>
-    <div class="flow">
-      <div class="flow-step">
-        <div class="flow-icon">📐</div>
-        <div class="flow-title">Motion Detection</div>
-        <div class="flow-desc">MPU6050 measures yaw & pitch angles</div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-icon">📡</div>
-        <div class="flow-title">Wireless Send</div>
-        <div class="flow-desc">NRF24L01 transmits data in real-time</div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-icon">⚙️</div>
-        <div class="flow-title">Servo Control</div>
-        <div class="flow-desc">Receiver ESP32 controls both servos</div>
-      </div>
-    </div>
-    <p style="margin-top: 20px; font-size: 15px; line-height: 1.8;">
-      The MPU6050 sensor measures motion and orientation data. The transmitter ESP32 reads the yaw and pitch values and sends them wirelessly through an NRF24L01 module.
-      The receiver ESP32 receives the data and converts it into servo positions. As the sensor moves, both servos follow the movement in real time, creating a wireless control system.
+    <p>
+      The MPU6050 sensor measures motion and orientation data. The transmitter ESP32 reads the yaw and pitch values and sends them wirelessly through an NRF24L01 module. The receiver ESP32 receives the data and converts it into servo positions. As the sensor moves, both servos follow the movement in real time, creating a wireless control system.
     </p>
   </div>
 
-   <div class="divider"></div>
+  <div class="divider"></div>
 
-    <div class="project-image reveal">
+        <div class="project-image reveal">
     <img src="1kmrange.png" alt="ESP32 NRF24 Transmitter&Receiver">
   </div>
 
   <div class="block reveal">
     <div class="block-label">// Source Code</div>
     <h2>Transmitter Code for ESP32</h2>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-r"></span>
+          <span class="dot-y"></span>
+          <span class="dot-g"></span>
+        </div>
+        <span class="code-lang">C++ / ESP32</span>
+        <button class="copy-btn" id="copyBtn">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+<pre id="codeContent">#include &gt;Wire.h&lt;
+#include &gt;SPI.h&lt;
+#include &gt;nRF24L01.h&lt;
+#include &gt;RF24.h&lt;
+#include &gt;MPU6050_tockn.h&lt;
+
+RF24 radio(4, 5); // CE, CSN
+MPU6050 mpu6050(Wire);
+
+const byte address[6] = "00001";
+
+struct Data {
+  int yaw;
+  int pitch;
+};
+
+Data data;
+
+void setup() {
+  Serial.begin(115200);
+
+  Wire.begin(21, 22); // SDA, SCL
+
+  mpu6050.begin();
+  mpu6050.calcGyroOffsets(true);
+
+  radio.begin();
+  radio.openWritingPipe(address);
+  radio.setPALevel(RF24_PA_HIGH);
+  radio.setDataRate(RF24_250KBPS);
+  radio.stopListening();
+
+  Serial.println("Transmitter Ready");
+}
+
+void loop() {
+  mpu6050.update();
+
+  data.yaw = (int)mpu6050.getAngleZ();
+  data.pitch = (int)mpu6050.getAngleX();
+
+  data.yaw = constrain(data.yaw, -90, 90);
+  data.pitch = constrain(data.pitch, -90, 90);
+
+  radio.write(&data, sizeof(data));
+
+  Serial.print("Yaw: ");
+  Serial.print(data.yaw);
+  Serial.print(" | Pitch: ");
+  Serial.println(data.pitch);
+
+  delay(20);
+}
+  
+}</pre>
+    </div>
+  </div>
+
+  <div class="project-image reveal">
+    <img src="receiverservo.png" alt="ESP32 NRF24 Transmitter&Receiver">
+  </div>
+
+  <div class="block reveal">
+    <div class="block-label">// Source Code</div>
+    <h2>Receiver Code for ESP32</h2>
     <div class="code-block">
       <div class="code-header">
         <div class="code-dots">
@@ -594,85 +694,7 @@ void loop() {
   }
 }
   
-</pre>
-    </div>
-  </div>
-
-  <div class="project-image reveal">
-    <img src="receiverservo.png" alt="ESP32 NRF24 Transmitter&Receiver">
-  </div>
-
-  <div class="block reveal">
-    <div class="block-label">// Source Code</div>
-    <h2>Receiver Code for ESP32</h2>
-    <div class="code-block">
-      <div class="code-header">
-        <div class="code-dots">
-          <span class="dot-r"></span>
-          <span class="dot-y"></span>
-          <span class="dot-g"></span>
-        </div>
-        <span class="code-lang">C++ / ESP32</span>
-        <button class="copy-btn" id="copyBtn">
-          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copy
-        </button>
-      </div>
-<pre id="codeContent">#include &gt;Wire.h&lt;
-#include &gt;SPI.h&lt;
-#include &gt;nRF24L01.h&lt;
-#include &gt;RF24.h&lt;
-#include &gt;MPU6050_tockn.h&lt;
-
-RF24 radio(4, 5); // CE, CSN
-MPU6050 mpu6050(Wire);
-
-const byte address[6] = "00001";
-
-struct Data {
-  int yaw;
-  int pitch;
-};
-
-Data data;
-
-void setup() {
-  Serial.begin(115200);
-
-  Wire.begin(21, 22); // SDA, SCL
-
-  mpu6050.begin();
-  mpu6050.calcGyroOffsets(true);
-
-  radio.begin();
-  radio.openWritingPipe(address);
-  radio.setPALevel(RF24_PA_HIGH);
-  radio.setDataRate(RF24_250KBPS);
-  radio.stopListening();
-
-  Serial.println("Transmitter Ready");
-}
-
-void loop() {
-  mpu6050.update();
-
-  data.yaw = (int)mpu6050.getAngleZ();
-  data.pitch = (int)mpu6050.getAngleX();
-
-  data.yaw = constrain(data.yaw, -90, 90);
-  data.pitch = constrain(data.pitch, -90, 90);
-
-  radio.write(&data, sizeof(data));
-
-  Serial.print("Yaw: ");
-  Serial.print(data.yaw);
-  Serial.print(" | Pitch: ");
-  Serial.println(data.pitch);
-
-  delay(20);
-}
-  
-</pre>
+}</pre>
     </div>
   </div>
 
@@ -682,34 +704,47 @@ void loop() {
     <div class="info-box green">
       <h3>✓ Results</h3>
       <ul class="styled-list">
-        <li>Real-time wireless control</li>
-        <li>Smooth servo movement</li>
-        <li>Long-range communication</li>
-        <li>Low latency response</li>
-        <li>Suitable for robotics and RC projects</li>
+        <li></li>
+        <li></li>
+        <li></li>
       </ul>
     </div>
     <div class="info-box purple">
       <h3>↑ Future Improvements</h3>
       <ul class="styled-list">
-        <li>Add PID stabilization</li>
-        <li>Increase transmission range</li>
-        <li>Add battery monitoring</li>
-        <li>Control additional servos</li>
-        <li>Build a complete RC gimbal system</li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
       </ul>
     </div>
   </div>
 
 </div>
 
-<!-- ═══ FOOTER ════════════════════════════════ -->
+<!-- ═══ FOOTER ════════════════════════════════════ -->
 <footer>
   <div class="footer-logo">Aero<span>Tech</span>Project</div>
   <div class="footer-copy">© 2026 AeroTechProject</div>
 </footer>
 
 <script>
+  // Copy button
+  const copyBtn = document.getElementById('copyBtn');
+  const codeContent = document.getElementById('codeContent');
+  copyBtn.addEventListener('click', () => {
+    const tmp = document.createElement('textarea');
+    tmp.innerHTML = codeContent.innerHTML;
+    navigator.clipboard.writeText(tmp.value).then(() => {
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied!`;
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
+      }, 2000);
+    });
+  });
+
   // Scroll reveal
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
