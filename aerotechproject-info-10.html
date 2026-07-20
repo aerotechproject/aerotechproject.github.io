@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>info10</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="aerotechproject-logo.jpg" type="image/png">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .image-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .image-container img {
+      width: 60%;
+      max-width: 500px;
+      border-radius: 10px;
+    }
+
+    pre {
+      background-color: #1b1b1b;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      color: #00ffcc;
+    }
+
+    .code-wrapper {
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #2b2b2b;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #444;
+    }
+
+    .copy-btn.copied {
+      background: green;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="image-container">
+  <img src="aerotechproject-photo-10.jpg" alt="Акс">
+</div>
+
+<div class="image-container">
+  <img src="aerotechproject-photo-10b.jpg" alt="Акс">
+</div>
+
+<h2>Controlling 3D on OLED display</h2>
+
+<div class="code-wrapper">
+  <button class="copy-btn" onclick="copyCode()">📋</button>
+
+<pre><code id="codeBlock">
+#include &lt;Wire.h&gt;
+#include &lt;Adafruit_GFX.h&gt;
+#include &lt;Adafruit_SSD1306.h&gt;
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+// --- Button pins ---
+#define BTN_RIGHT  2
+#define BTN_LEFT   3
+#define BTN_UP     4
+#define BTN_DOWN   5
+
+struct Vec3 { float x, y, z; };
+Vec3 vertices[8] = {
+  {-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
+  {-1, -1,  1}, {1, -1,  1}, {1, 1,  1}, {-1, 1,  1}
+};
+
+byte edges[12][2] = {
+  {0,1},{1,2},{2,3},{3,0},
+  {4,5},{5,6},{6,7},{7,4},
+  {0,4},{1,5},{2,6},{3,7}
+};
+
+float angleX = 0, angleY = 0;
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+  display.display();
+
+  pinMode(BTN_LEFT, INPUT_PULLUP);
+  pinMode(BTN_RIGHT, INPUT_PULLUP);
+  pinMode(BTN_UP, INPUT_PULLUP);
+  pinMode(BTN_DOWN, INPUT_PULLUP);
+}
+
+void loop() {
+
+  if (digitalRead(BTN_LEFT) == LOW)  angleY -= 0.05;
+  if (digitalRead(BTN_RIGHT) == LOW) angleY += 0.05;
+  if (digitalRead(BTN_UP) == LOW)    angleX -= 0.05;
+  if (digitalRead(BTN_DOWN) == LOW)  angleX += 0.05;
+
+  display.clearDisplay();
+
+  float sinX = sin(angleX), cosX = cos(angleX);
+  float sinY = sin(angleY), cosY = cos(angleY);
+
+  int x2d[8], y2d[8];
+
+  for (int i = 0; i < 8; i++) {
+    Vec3 p = vertices[i];
+
+    float y1 = p.y * cosX - p.z * sinX;
+    float z1 = p.y * sinX + p.z * cosX;
+
+    float x2 = p.x * cosY + z1 * sinY;
+    float z2 = -p.x * sinY + z1 * cosY;
+
+    float distance = 3.5;
+    float fov = 64;
+    float factor = fov / (z2 + distance);
+
+    x2d[i] = (int)(x2 * factor + SCREEN_WIDTH / 2);
+    y2d[i] = (int)(y1 * factor + SCREEN_HEIGHT / 2);
+  }
+
+  for (int i = 0; i < 12; i++) {
+    int a = edges[i][0];
+    int b = edges[i][1];
+    display.drawLine(x2d[a], y2d[a], x2d[b], y2d[b], SSD1306_WHITE);
+  }
+
+  display.display();
+  delay(20);
+}
+</code></pre>
+</div>
+
+<script>
+function copyCode() {
+  const code = document.getElementById("codeBlock").innerText;
+  navigator.clipboard.writeText(code).then(() => {
+
+    const btn = document.querySelector(".copy-btn");
+    btn.classList.add("copied");
+    btn.innerText = "✅";
+
+    setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.innerText = "📋";
+    }, 1500);
+
+  });
+}
+</script>
+
+</body>
+</html>

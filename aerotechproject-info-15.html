@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand Tracking Servo Control</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #ffffff;
+      color: #000000;
+      line-height: 1.6;
+    }
+
+    h2, h3 {
+      color: #111;
+    }
+
+    .image-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .image-container img {
+      width: 60%;
+      max-width: 500px;
+      border-radius: 10px;
+    }
+
+    pre {
+      background-color: #f4f4f4;
+      color: #000;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      border: 1px solid #ddd;
+    }
+
+    .code-wrapper {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ddd;
+      border: none;
+      color: black;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background: #bbb;
+    }
+
+    .copy-btn.copied {
+      background: green;
+      color: white;
+    }
+
+    ul {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="image-container">
+    <img src="aerotechproject-photo-15.jpg" alt="Hand Tracking Servo">
+  </div>
+
+  <h2>Real-Time Hand Tracking Servo Control</h2>
+
+  <p>
+    This project demonstrates real-time servo control using computer vision and hand tracking.
+    A webcam detects hand movements using MediaPipe, and the data is sent to an Arduino Nano,
+    which controls multiple servo motors based on finger positions.
+  </p>
+
+  <h3>Main Features:</h3>
+  <ul>
+    <li>Real-time hand tracking using camera</li>
+    <li>Control 5 servo motors with finger gestures</li>
+    <li>Fast and responsive serial communication</li>
+    <li>Simple and effective gesture-based control system</li>
+  </ul>
+
+  <h3>Required Components:</h3>
+  <ul>
+    <li>Arduino Nano (or Uno)</li>
+    <li>5x Servo motors (SG90 or similar)</li>
+    <li>Jumper wires</li>
+    <li>External 5V power supply (recommended)</li>
+    <li>Computer with webcam</li>
+  </ul>
+
+  <h3>Wiring:</h3>
+  <ul>
+    <li>Servo 1 → Pin 3</li>
+    <li>Servo 2 → Pin 5</li>
+    <li>Servo 3 → Pin 6</li>
+    <li>Servo 4 → Pin 9</li>
+    <li>Servo 5 → Pin 10</li>
+    <li>All GND → Common GND</li>
+    <li>All VCC → 5V (external recommended)</li>
+  </ul>
+
+  <h3>How it works:</h3>
+  <p>
+    The Python script uses MediaPipe to detect hand landmarks from the webcam.
+    It determines which fingers are up or down and converts this into a binary string.
+    This string is sent via serial communication to the Arduino.
+    The Arduino reads the data and moves the corresponding servos.
+  </p>
+
+  <h3>Code for Arduino</h3>
+
+  <div class="code-wrapper">
+    <button class="copy-btn">Copy</button>
+    <pre><code>
+#include &lt;Servo.h&gt;
+
+Servo s1, s2, s3, s4, s5;
+
+void setup() {
+  Serial.begin(9600);
+
+  s1.attach(3);
+  s2.attach(5);
+  s3.attach(6);
+  s4.attach(9);
+  s5.attach(10);
+}
+
+void loop() {
+  if (Serial.available() >= 5) {
+
+    char f1 = Serial.read();
+    char f2 = Serial.read();
+    char f3 = Serial.read();
+    char f4 = Serial.read();
+    char f5 = Serial.read();
+
+    s1.write(f1 == '1' ? 180 : 0);
+    s2.write(f2 == '1' ? 180 : 0);
+    s3.write(f3 == '1' ? 180 : 0);
+    s4.write(f4 == '1' ? 180 : 0);
+    s5.write(f5 == '1' ? 180 : 0);
+  }
+}
+    </code></pre>
+  </div>
+
+  <h3>Code for Python</h3>
+
+  <div class="code-wrapper">
+    <button class="copy-btn">Copy</button>
+    <pre><code>
+import cv2
+import mediapipe as mp
+import serial
+import time
+
+arduino = serial.Serial('COM4', 9600)
+time.sleep(2)
+
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(
+    min_detection_confidence=0.7,
+    min_tracking_confidence=0.7
+)
+
+mp_drawing = mp.solutions.drawing_utils
+cap = cv2.VideoCapture(0)
+
+def detect_fingers(lm):
+    fingers = []
+
+    fingers.append(1 if lm.landmark[4].x < lm.landmark[3].x else 0)
+    fingers.append(1 if lm.landmark[8].y < lm.landmark[6].y else 0)
+    fingers.append(1 if lm.landmark[12].y < lm.landmark[10].y else 0)
+    fingers.append(1 if lm.landmark[16].y < lm.landmark[14].y else 0)
+    fingers.append(1 if lm.landmark[20].y < lm.landmark[18].y else 0)
+
+    return fingers
+
+while True:
+    success, img = cap.read()
+    if not success:
+        break
+
+    img = cv2.flip(img, 1)
+    rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    results = hands.process(rgb)
+    img = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+
+            mp_drawing.draw_landmarks(
+                img,
+                hand_landmarks,
+                mp_hands.HAND_CONNECTIONS
+            )
+
+            fingers = detect_fingers(hand_landmarks)
+            data = ''.join(map(str, fingers))
+            arduino.write(data.encode())
+
+    cv2.imshow("Hand Tracking", img)
+
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+
+cap.release()
+arduino.close()
+cv2.destroyAllWindows()
+    </code></pre>
+  </div>
+
+<script>
+document.querySelectorAll(".copy-btn").forEach(button => {
+  const originalText = button.innerText;
+
+  button.addEventListener("click", () => {
+    const code = button.nextElementSibling.innerText;
+
+    navigator.clipboard.writeText(code).then(() => {
+      button.classList.add("copied");
+      button.innerText = 'Copied!';
+
+      setTimeout(() => {
+        button.classList.remove("copied");
+        button.innerText = originalText;
+      }, 1500);
+    });
+  });
+});
+</script>
+
+</body>
+</html>
