@@ -305,36 +305,51 @@
   .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:52px 0;}
 
   /* FOOTER */
-  footer{
-    padding:52px 40px 48px;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    gap:32px;background:#000000;border-top:none;
+ footer {
+    padding: 36px 40px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: #0a0a0a;
   }
-  .footer-logo{
-    font-family:'Bebas Neue',sans-serif;
-    font-size:36px;letter-spacing:4px;
-    color:#ffffff;text-transform:uppercase;
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: #ffffff;
   }
-  .footer-logo span{color:#666;}
-  .footer-social{display:flex;align-items:center;gap:20px;}
-  .footer-social a{
-    display:flex;align-items:center;justify-content:center;
-    width:80px;height:80px;border-radius:18px;
-    background:#ffffff;overflow:hidden;
-    transition:transform .2s,box-shadow .2s;
+  .footer-logo span { color: #aaaaaa; }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
   }
-  .footer-social a:hover{
-    transform:translateY(-5px) scale(1.06);
-    box-shadow:0 16px 40px rgba(255,255,255,.12);
+
+  .footer-social {
+    display: flex;
+    gap: 12px;
+    align-items: center;
   }
-  .footer-social img{width:54px;height:54px;border-radius:0;display:block;}
-  @media(max-width:480px){
-    footer{padding:40px 20px 36px;gap:24px;}
-    .footer-logo{font-size:26px;letter-spacing:3px;}
-    .footer-social{gap:14px;}
-    .footer-social a{width:64px;height:64px;border-radius:14px;}
-    .footer-social img{width:42px;height:42px;}
+  .footer-social a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .footer-social a img { width: 24px; height: 24px; }
+  .footer-social a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
   }
 
   /* REVEAL */
