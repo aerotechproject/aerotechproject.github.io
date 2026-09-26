@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 Wi-Fi RC Car — AeroTechProject</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/jpeg" href="logo222.jpg">
+<link rel="apple-touch-icon" href="logo222.jpg">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="ESP32 Wi-Fi RC Car — AeroTechProject">
+<meta property="og:description" content="Homemade 4-wheel RC car controlled wirelessly via ESP32 and Wi-Fi UDP">
+
+<style>
+  :root {
+    --bg:      #ffffff;
+    --surface: rgba(0,0,0,0.03);
+    --surface2:rgba(0,0,0,0.06);
+    --border:  rgba(0,0,0,0.1);
+    --accent:  #000000;
+    --accent2: #444444;
+    --text:    #0a0a0a;
+    --muted:   rgba(10,10,10,0.45);
+    --code-bg: #0d1117;
+    --radius:  14px;
+    --nav-h:   68px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'DM Sans',sans-serif;
+    min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+
+  /* HEADER */
+  header{
+    position:sticky;top:0;z-index:100;height:var(--nav-h);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 40px;background:rgba(255,255,255,0.88);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+  }
+  .back-btn{display:flex;align-items:center;gap:8px;text-decoration:none;
+    color:var(--muted);font-size:14px;font-weight:500;transition:color .2s,gap .2s;}
+  .back-btn:hover{color:var(--text);gap:12px;}
+  .back-btn svg{transition:transform .2s;}
+  .back-btn:hover svg{transform:translateX(-3px);}
+  .logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
+    color:var(--text);text-decoration:none;}
+  .header-tag{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;}
+
+  /* HERO */
+  .hero{position:relative;padding:60px 0 0;overflow:hidden;}
+  .hero-inner{max-width:900px;margin:0 auto;padding:0 32px 40px;}
+
+  .breadcrumb{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;
+    font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;}
+  .breadcrumb span{color:var(--accent);font-weight:700;}
+
+  .project-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,9vw,80px);
+    letter-spacing:2px;line-height:1;color:var(--text);margin-bottom:24px;}
+
+  .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
+  .tag{padding:5px 14px;border-radius:8px;font-size:12px;font-weight:600;
+    letter-spacing:.5px;font-family:'Space Mono',monospace;}
+  .tag-accent{background:var(--accent);color:#fff;}
+  .tag-muted{background:var(--surface2);border:1px solid var(--border);color:var(--accent2);}
+
+  /* PROJECT IMAGE / PLACEHOLDER */
+  .project-image{width:100%;max-width:900px;margin:0 auto;display:block;
+    border-radius:18px;overflow:hidden;border:1px solid var(--border);
+    box-shadow:0 30px 80px rgba(0,0,0,.12);}
+  .project-image img{width:100%;display:block;object-fit:cover;max-height:520px;}
+
+  .img-ph{width:100%;height:400px;background:var(--surface);border:1px dashed var(--border);
+    border-radius:18px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:14px;color:var(--muted);}
+  .img-ph-icon{font-size:40px;opacity:.3;}
+  .img-ph-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;
+    text-transform:uppercase;}
+
+  /* CONTENT */
+  .content{max-width:900px;margin:0 auto;padding:60px 32px 80px;position:relative;z-index:1;}
+  .block{margin-bottom:52px;}
+  .block-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent2);
+    letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+  .block h2{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1.5px;
+    color:var(--text);margin-bottom:18px;border-bottom:2px solid var(--accent);
+    display:inline-block;padding-bottom:4px;}
+  .block p{font-size:16px;line-height:1.85;color:rgba(10,10,10,.72);}
+
+  /* SECTION NAV */
+  .snav{display:flex;gap:6px;flex-wrap:wrap;padding:0 0 24px;margin-bottom:40px;
+    border-bottom:1px solid var(--border);}
+  .snav a{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;
+    text-transform:uppercase;color:var(--muted);text-decoration:none;
+    padding:6px 12px;border-radius:8px;border:1px solid var(--border);
+    transition:color .2s,border-color .2s,background .2s;}
+  .snav a:hover{color:var(--text);border-color:var(--accent);background:var(--surface);}
+
+  /* COMPONENTS GRID */
+  .components-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));
+    gap:12px;margin-top:8px;}
+  .component-card{padding:16px;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);display:flex;align-items:center;gap:12px;
+    transition:border-color .2s,background .2s,transform .2s,box-shadow .2s;cursor:default;}
+  .component-card:hover{border-color:var(--accent);background:var(--surface2);
+    transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);}
+  .component-icon{width:36px;height:36px;border-radius:8px;background:var(--accent);
+    display:grid;place-items:center;flex-shrink:0;font-size:16px;}
+  .component-name{font-size:14px;font-weight:500;color:var(--text);}
+
+  /* STYLED LIST */
+  .styled-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+  .styled-list li{display:flex;align-items:flex-start;gap:12px;font-size:15px;
+    color:rgba(10,10,10,.72);line-height:1.6;padding:10px 14px;border-radius:8px;
+    background:var(--surface);border:1px solid var(--border);transition:border-color .2s;}
+  .styled-list li:hover{border-color:var(--accent);}
+  .styled-list li::before{content:'→';color:var(--accent);font-family:'Space Mono',monospace;
+    font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px;}
+
+  /* PIPELINE (vertical flow) */
+  .pipeline{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:8px;}
+  .pipe-step{width:100%;max-width:420px;padding:18px 24px;border-radius:var(--radius);
+    border:1px solid var(--border);background:var(--surface);text-align:center;
+    transition:border-color .2s,transform .2s;}
+  .pipe-step:hover{border-color:var(--accent);transform:scale(1.01);}
+  .pipe-icon{font-size:22px;margin-bottom:6px;}
+  .pipe-title{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--text);}
+  .pipe-desc{font-size:12px;color:var(--muted);margin-top:4px;}
+  .pipe-arrow{font-size:20px;color:var(--muted);padding:8px 0;}
+
+  /* 3-STEP FLOW (horizontal) */
+  .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;}
+  .flow-step{padding:24px 20px;border-radius:var(--radius);border:1px solid var(--border);
+    background:var(--surface);text-align:center;position:relative;
+    transition:transform .2s,box-shadow .2s;}
+  .flow-step:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.1);}
+  .flow-step::after{content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);
+    font-size:18px;color:var(--muted);z-index:1;}
+  .flow-step:last-child::after{display:none;}
+  .flow-icon{font-size:28px;margin-bottom:10px;}
+  .flow-title{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;
+    color:var(--text);letter-spacing:.5px;margin-bottom:6px;}
+  .flow-desc{font-size:13px;color:var(--muted);line-height:1.5;}
+
+  /* TABLES */
+  .table-wrap{overflow-x:auto;margin-top:8px;border-radius:var(--radius);border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  thead th{background:var(--surface2);padding:12px 16px;text-align:left;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--accent2);border-bottom:1px solid var(--border);}
+  tbody td{padding:12px 16px;border-bottom:1px solid var(--border);
+    color:rgba(10,10,10,.72);font-size:14px;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--surface);}
+  .mc{font-family:'Space Mono',monospace;font-size:12px;}
+
+  /* SPEC TABLE (key/value) */
+  .spec-table{width:100%;border-collapse:collapse;border-radius:var(--radius);
+    border:1px solid var(--border);font-size:14px;margin-top:8px;overflow:hidden;}
+  .spec-table td{padding:12px 16px;border-bottom:1px solid var(--border);}
+  .spec-table tr:last-child td{border-bottom:none;}
+  .spec-table tr:hover td{background:var(--surface);}
+  .spec-table td:first-child{font-family:'Space Mono',monospace;font-size:11px;
+    text-transform:uppercase;letter-spacing:1px;color:var(--muted);
+    width:42%;border-right:1px solid var(--border);}
+  .spec-table td:last-child{color:rgba(10,10,10,.72);font-weight:500;}
+
+  /* CODE */
+  .code-block{position:relative;margin-top:8px;border-radius:var(--radius);overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.35);}
+  .code-header{display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;background:#161b22;border-bottom:1px solid rgba(255,255,255,.06);}
+  .code-dots{display:flex;gap:6px;}
+  .code-dots span{width:10px;height:10px;border-radius:50%;}
+  .dot-r{background:#ff5f57;}.dot-y{background:#febc2e;}.dot-g{background:#28c840;}
+  .code-lang{font-family:'Space Mono',monospace;font-size:11px;
+    color:rgba(255,255,255,.35);letter-spacing:1px;}
+  .copy-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);
+    padding:5px 14px;border-radius:8px;cursor:pointer;font-size:12px;
+    font-family:'Space Mono',monospace;transition:background .2s,color .2s;}
+  .copy-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
+  .copy-btn.copied{background:rgba(40,200,80,.15);border-color:rgba(40,200,80,.3);color:#28c840;}
+  pre{background:var(--code-bg);padding:28px 24px;overflow-x:auto;margin:0;
+    font-family:'Space Mono',monospace;font-size:13px;line-height:1.75;color:#c9d1d9;}
+
+  /* CODE TABS */
+  .code-tabs-nav{display:flex;gap:4px;margin-bottom:-1px;position:relative;z-index:1;}
+  .ctab-btn{padding:10px 20px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.08);
+    border-bottom:none;color:rgba(255,255,255,.4);font-family:'Space Mono',monospace;
+    font-size:12px;cursor:pointer;border-radius:8px 8px 0 0;transition:background .2s,color .2s;}
+  .ctab-btn.active{background:#161b22;color:#fff;}
+  .ctab-btn:hover:not(.active){background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);}
+  .ctab-panel{display:none;}
+  .ctab-panel.active{display:block;}
+
+  /* CODE PLACEHOLDER */
+  .code-ph{background:var(--code-bg);padding:48px 24px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:12px;text-align:center;min-height:160px;}
+  .code-ph-icon{font-size:32px;opacity:.3;}
+  .code-ph-text{font-family:'Space Mono',monospace;font-size:12px;
+    color:rgba(255,255,255,.3);letter-spacing:1px;}
+  .code-ph-sub{font-family:'Space Mono',monospace;font-size:10px;
+    color:rgba(255,255,255,.15);margin-top:4px;}
+
+  /* TIMELINE */
+  .timeline{display:flex;flex-direction:column;gap:0;margin-top:8px;
+    position:relative;padding-left:28px;}
+  .timeline::before{content:'';position:absolute;left:23px;top:24px;bottom:24px;
+    width:2px;background:var(--border);}
+  .tl-item{display:flex;gap:20px;align-items:flex-start;padding:8px 0;position:relative;}
+  .tl-num{width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;
+    font-family:'Space Mono',monospace;font-size:11px;font-weight:700;
+    display:grid;place-items:center;flex-shrink:0;position:relative;z-index:1;margin-left:-23px;}
+  .tl-body{padding:12px 16px;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);flex:1;margin-top:2px;transition:border-color .2s;
+    font-size:14px;color:rgba(10,10,10,.72);}
+  .tl-body:hover{border-color:var(--accent);}
+  .tl-body strong{color:var(--text);}
+
+  /* GALLERY */
+  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+    gap:12px;margin-top:8px;}
+  .gallery-item{aspect-ratio:4/3;background:var(--surface);border:1px dashed var(--border);
+    border-radius:var(--radius);overflow:hidden;position:relative;cursor:default;
+    transition:border-color .2s,transform .2s;}
+  .gallery-item:hover{border-color:var(--accent);transform:scale(1.02);}
+  .gallery-item img{width:100%;height:100%;object-fit:cover;display:block;
+    position:absolute;top:0;left:0;}
+  .gi-label{position:absolute;bottom:0;left:0;right:0;
+    background:rgba(0,0,0,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;
+    color:#fff;text-align:center;text-transform:uppercase;padding:6px 4px;}
+
+  /* VIDEO */
+  .video-ph{width:100%;aspect-ratio:16/9;background:var(--surface);
+    border:1px dashed var(--border);border-radius:18px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:12px;margin-top:8px;}
+  .vph-icon{font-size:48px;opacity:.25;}
+  .vph-title{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1px;
+    color:var(--muted);text-transform:uppercase;}
+  .vph-sub{font-family:'Space Mono',monospace;font-size:10px;
+    color:rgba(10,10,10,.2);letter-spacing:1px;}
+
+  /* FAIL-SAFE / RESULT CARD */
+  .highlight-card{padding:28px;border-radius:var(--radius);margin-top:8px;}
+  .highlight-card h3{font-family:'Bebas Neue',sans-serif;font-size:24px;
+    letter-spacing:1px;margin-bottom:12px;}
+  .highlight-card p{font-size:15px;line-height:1.8;color:rgba(10,10,10,.72);}
+  .card-warn{border:1px solid rgba(220,150,0,.3);background:rgba(220,150,0,.04);}
+  .card-warn h3{color:#b87800;}
+  .card-ok{border:1px solid rgba(0,180,80,.25);background:rgba(0,180,80,.04);}
+  .card-ok h3{color:#00b450;}
+
+  /* EXPLAIN GRID */
+  .explain-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:12px;margin-top:8px;}
+  .explain-card{padding:20px;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);transition:border-color .2s,transform .2s;}
+  .explain-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+  .explain-card h4{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;
+    color:var(--text);letter-spacing:.5px;margin-bottom:8px;}
+  .explain-card p{font-size:13px;line-height:1.7;color:rgba(10,10,10,.65);}
+
+  /* JOYSTICK DIAGRAM */
+  .joy-wrap{display:flex;justify-content:center;margin:20px 0;}
+  .joy-grid{display:grid;grid-template-columns:repeat(3,88px);
+    grid-template-rows:repeat(3,64px);gap:6px;}
+  .joy-cell{border-radius:10px;background:var(--surface);border:1px solid var(--border);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);gap:4px;}
+  .joy-cell.ja{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .joy-cell.jc{background:var(--surface2);color:var(--text);}
+  .joy-arr{font-size:16px;}
+
+  /* WIRING VISUAL */
+  .wiring-vis{background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:24px;margin-top:8px;text-align:center;
+    font-family:'Space Mono',monospace;font-size:11px;line-height:2.2;color:var(--muted);}
+  .wb{display:inline-block;padding:4px 14px;border:1px solid var(--border);
+    border-radius:6px;background:var(--surface2);color:var(--text);font-weight:700;font-size:12px;}
+  .wl{color:var(--muted);font-size:10px;letter-spacing:.5px;}
+
+  /* TWO COL */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .info-box{padding:28px;border-radius:var(--radius);border:1px solid var(--border);
+    background:var(--surface);transition:transform .2s,box-shadow .2s;}
+  .info-box:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.1);}
+  .info-box.green{border-color:rgba(0,180,80,.25);background:rgba(0,180,80,.04);}
+  .info-box.purple{border-color:rgba(100,80,220,.25);background:rgba(100,80,220,.04);}
+  .info-box h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:16px;}
+  .info-box.green h3{color:#00b450;}
+  .info-box.purple h3{color:#6450dc;}
+  .info-box .styled-list li{background:transparent;border:none;padding:4px 0;
+    border-radius:0;border-bottom:1px solid var(--border);}
+  .info-box .styled-list li:last-child{border-bottom:none;}
+
+  /* UPLOAD IMAGE WIDGET */
+  .upload-wrap{position:relative;width:100%;cursor:pointer;display:block;}
+  .upload-ph{width:100%;min-height:300px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:12px;
+    background:var(--surface);transition:background .2s;}
+  .upload-wrap:hover .upload-ph{background:var(--surface2);}
+  .uph-icon{font-size:36px;opacity:.25;}
+  .uph-lbl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--muted);}
+  .uph-sub{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;
+    color:rgba(10,10,10,.22);}
+  .upload-wrap img.u-img{width:100%;display:none;object-fit:cover;max-height:520px;}
+  .upload-wrap.has-img .upload-ph{display:none;}
+  .upload-wrap.has-img img.u-img{display:block;}
+
+  /* Gallery upload override */
+  .gallery-item{position:relative;}
+  .gallery-item .upload-wrap{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;}
+  .gallery-item .upload-ph{width:100%;height:100%;min-height:unset;}
+  .gallery-item .upload-wrap img.u-img{height:100%;max-height:none;object-fit:cover;}
+  .gi-label{z-index:2;}
+
+  /* DIVIDER */
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:52px 0;}
+
+  /* FOOTER */
+  footer{
+    padding:52px 40px 48px;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:32px;background:#000000;border-top:none;
+  }
+  .footer-logo{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:36px;letter-spacing:4px;
+    color:#ffffff;text-transform:uppercase;
+  }
+  .footer-logo span{color:#666;}
+  .footer-social{display:flex;align-items:center;gap:20px;}
+  .footer-social a{
+    display:flex;align-items:center;justify-content:center;
+    width:80px;height:80px;border-radius:18px;
+    background:#ffffff;overflow:hidden;
+    transition:transform .2s,box-shadow .2s;
+  }
+  .footer-social a:hover{
+    transform:translateY(-5px) scale(1.06);
+    box-shadow:0 16px 40px rgba(255,255,255,.12);
+  }
+  .footer-social img{width:54px;height:54px;border-radius:0;display:block;}
+  @media(max-width:480px){
+    footer{padding:40px 20px 36px;gap:24px;}
+    .footer-logo{font-size:26px;letter-spacing:3px;}
+    .footer-social{gap:14px;}
+    .footer-social a{width:64px;height:64px;border-radius:14px;}
+    .footer-social img{width:42px;height:42px;}
+  }
+
+  /* REVEAL */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;}
+  .reveal.visible{opacity:1;transform:none;}
+
+  /* RESPONSIVE */
+  @media(max-width:640px){
+    header{padding:0 20px;}
+    .header-tag{display:none;}
+    .hero-inner{padding:0 20px 28px;}
+    .content{padding:40px 20px 60px;}
+    .two-col,.flow{grid-template-columns:1fr;}
+    .flow-step::after{display:none;}
+    .components-grid{grid-template-columns:1fr 1fr;}
+    footer{padding:24px 20px;}
+    pre{font-size:12px;padding:16px;}
+    .gallery-grid{grid-template-columns:1fr 1fr;}
+    .explain-grid{grid-template-columns:1fr;}
+    .timeline{padding-left:16px;}
+    .tl-num{width:38px;height:38px;font-size:10px;margin-left:-19px;}
+    .joy-grid{grid-template-columns:repeat(3,72px);grid-template-rows:repeat(3,54px);}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a href="index.html" class="back-btn" onclick="if(document.referrer){event.preventDefault();history.back();}">
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+    Back
+  </a>
+  <a href="index.html" class="logo-text">AeroTechProject</a>
+  <span class="header-tag">ESP32 &#xB7; Wi-Fi &#xB7; RC</span>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner reveal">
+    <div class="breadcrumb">
+      AeroTechProject <span>/</span> RC Car <span>/</span> ESP32 Wi-Fi
+    </div>
+    <h1 class="project-title">ESP32<br>Wi-Fi<br>RC Car</h1>
+    <div class="tag-row">
+      <span class="tag tag-accent">Wi-Fi Control</span>
+      <span class="tag tag-accent">RC Car</span>
+      <span class="tag tag-muted">ESP32</span>
+      <span class="tag tag-muted">L298N</span>
+      <span class="tag tag-muted">Joystick</span>
+      <span class="tag tag-muted">UDP</span>
+      <span class="tag tag-muted">4-Wheel Drive</span>
+    </div>
+  </div>
+
+  <div class="project-image reveal">
+    <div class="upload-wrap" onclick="document.getElementById('u_hero').click()">
+      <input type="file" id="u_hero" accept="image/*" style="display:none" onchange="loadImg(this)">
+      <div class="upload-ph">
+        <div class="uph-icon">&#128247;</div>
+        <div class="uph-lbl">Click to Upload Photo</div>
+        <div class="uph-sub">Main Project Photo</div>
+      </div>
+      <img class="u-img" src="" alt="ESP32 Wi-Fi RC Car">
+    </div>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- SECTION NAV -->
+  <nav class="snav reveal">
+    <a href="#overview">Overview</a>
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#controller">Controller</a>
+    <a href="#receiver">Receiver</a>
+    <a href="#l298n">L298N</a>
+    <a href="#wiring">Wiring</a>
+    <a href="#software">Software</a>
+    <a href="#failsafe">Fail-Safe</a>
+    <a href="#power">Power</a>
+    <a href="#build">Build</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#specs">Specs</a>
+    <a href="#code">Code</a>
+    <a href="#future">Future</a>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <div class="block reveal" id="overview">
+    <div class="block-label">// Overview</div>
+    <h2>Abstract</h2>
+    <p>
+      This project is a homemade 4-wheel RC car controlled wirelessly using two ESP32 boards and Wi-Fi. The controller ESP32 reads joystick input and transmits data via UDP to the car ESP32, which drives four DC motors through an L298N dual H-bridge motor driver. The system features differential steering, a wireless fail-safe, and a dedicated Wi-Fi network for control.
+    </p>
+  </div>
+
+  <div class="block reveal">
+    <div class="block-label">// Goals</div>
+    <h2>Objective</h2>
+    <ul class="styled-list">
+      <li>Build a functional Wi-Fi controlled 4-wheel drive RC car from scratch</li>
+      <li>Implement low-latency UDP communication between two ESP32 boards</li>
+      <li>Control four DC motors via an L298N dual H-bridge motor driver</li>
+      <li>Use a joystick module for intuitive handheld control</li>
+      <li>Implement differential steering for left and right turning</li>
+      <li>Add a wireless fail-safe that stops the motors on signal loss</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FEATURES -->
+  <div class="block reveal" id="features">
+    <div class="block-label">// Capabilities</div>
+    <h2>Main Features</h2>
+    <div class="components-grid">
+      <div class="component-card"><div class="component-icon">&#128246;</div><div class="component-name">Wi-Fi Control</div></div>
+      <div class="component-card"><div class="component-icon">&#9889;</div><div class="component-name">Two ESP32 Boards</div></div>
+      <div class="component-card"><div class="component-icon">&#127918;</div><div class="component-name">Joystick Input</div></div>
+      <div class="component-card"><div class="component-icon">&#9881;</div><div class="component-name">4-Wheel Drive</div></div>
+      <div class="component-card"><div class="component-icon">&#128268;</div><div class="component-name">L298N Driver</div></div>
+      <div class="component-card"><div class="component-icon">&#8679;</div><div class="component-name">Forward Movement</div></div>
+      <div class="component-card"><div class="component-icon">&#8681;</div><div class="component-name">Reverse Movement</div></div>
+      <div class="component-card"><div class="component-icon">&#8596;</div><div class="component-name">Left / Right Steer</div></div>
+      <div class="component-card"><div class="component-icon">&#9209;</div><div class="component-name">Stop Control</div></div>
+      <div class="component-card"><div class="component-icon">&#128225;</div><div class="component-name">UDP Protocol</div></div>
+      <div class="component-card"><div class="component-icon">&#128737;</div><div class="component-name">Wireless Fail-Safe</div></div>
+      <div class="component-card"><div class="component-icon">&#128295;</div><div class="component-name">DIY Build</div></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="block reveal" id="how">
+    <div class="block-label">// System Architecture</div>
+    <h2>How It Works</h2>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-icon">&#127918;</div>
+        <div class="pipe-title">Joystick</div>
+        <div class="pipe-desc">Outputs X axis (VRX) for steering and Y axis (VRY) for speed</div>
+      </div>
+      <div class="pipe-arrow">&#8595;</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">&#9889;</div>
+        <div class="pipe-title">ESP32 Controller</div>
+        <div class="pipe-desc">Reads ADC values, applies dead zone, packs joystick data into a UDP packet</div>
+      </div>
+      <div class="pipe-arrow">&#8595;</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">&#128246;</div>
+        <div class="pipe-title">Wi-Fi / UDP</div>
+        <div class="pipe-desc">Control packet transmitted wirelessly over dedicated RC_CAR network</div>
+      </div>
+      <div class="pipe-arrow">&#8595;</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">&#9889;</div>
+        <div class="pipe-title">ESP32 Receiver (in car)</div>
+        <div class="pipe-desc">Receives UDP packet, decodes joystick values, calculates motor speeds and directions</div>
+      </div>
+      <div class="pipe-arrow">&#8595;</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">&#128268;</div>
+        <div class="pipe-title">L298N Motor Driver</div>
+        <div class="pipe-desc">Receives PWM and direction signals, drives motor current via dual H-bridge</div>
+      </div>
+      <div class="pipe-arrow">&#8595;</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">&#128260;</div>
+        <div class="pipe-title">Left and Right Motor Groups</div>
+        <div class="pipe-desc">Two motors per side, controlled independently for differential steering</div>
+      </div>
+      <div class="pipe-arrow">&#8595;</div>
+      <div class="pipe-step">
+        <div class="pipe-icon">&#128663;</div>
+        <div class="pipe-title">4 Wheels</div>
+        <div class="pipe-desc">Car drives forward, backward, turns left or right</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CONTROLLER -->
+  <div class="block reveal" id="controller">
+    <div class="block-label">// Transmitter</div>
+    <h2>ESP32 Wireless Controller</h2>
+    <p>
+      The first ESP32 is the handheld transmitter. It reads the joystick position continuously and sends control packets to the car ESP32 over UDP through a dedicated Wi-Fi access point. VRX controls left/right steering, VRY controls forward/backward movement, and SW is the joystick push button.
+    </p>
+
+    <br>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">&#127918;</div>
+        <div class="flow-title">Read Joystick</div>
+        <div class="flow-desc">VRX = steer left/right<br>VRY = forward/backward</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">&#128260;</div>
+        <div class="flow-title">Apply Dead Zone</div>
+        <div class="flow-desc">Center dead zone prevents motor drift when joystick is at rest</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">&#128225;</div>
+        <div class="flow-title">Send UDP</div>
+        <div class="flow-desc">Joystick X and Y values transmitted wirelessly to car</div>
+      </div>
+    </div>
+
+    <br>
+    <div class="block-label" style="margin-top:20px;">// Joystick Wiring</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Joystick Pin</th><th>ESP32 Pin</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td class="mc">VCC</td><td class="mc">3.3V</td><td>Power supply</td></tr>
+          <tr><td class="mc">GND</td><td class="mc">GND</td><td>Ground</td></tr>
+          <tr><td class="mc">VRX</td><td class="mc">GPIO 34</td><td>Left / Right steering axis</td></tr>
+          <tr><td class="mc">VRY</td><td class="mc">GPIO 35</td><td>Forward / Backward axis</td></tr>
+          <tr><td class="mc">SW</td><td class="mc">GPIO 27</td><td>Joystick push button</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <br>
+    <div class="block-label" style="margin-top:20px;">// Wi-Fi Network</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>SSID</td><td class="mc">RC_CAR</td></tr>
+          <tr><td>Password</td><td class="mc">12345678</td></tr>
+          <tr><td>Protocol</td><td class="mc">UDP</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RECEIVER -->
+  <div class="block reveal" id="receiver">
+    <div class="block-label">// Car ESP32</div>
+    <h2>ESP32 Car Receiver</h2>
+    <p>
+      The second ESP32 is mounted inside the RC car chassis. It connects to the RC_CAR Wi-Fi network, receives UDP control packets from the controller, decodes the joystick values, calculates the required motor speeds and directions, and drives the L298N. If no packet is received within approximately 300 ms, it stops all motors automatically.
+    </p>
+    <br>
+    <ul class="styled-list">
+      <li>Connects to the RC_CAR Wi-Fi access point created by the controller</li>
+      <li>Listens for incoming UDP control packets continuously</li>
+      <li>Parses joystick X and Y values from each received packet</li>
+      <li>Calculates left and right motor speeds using differential steering logic</li>
+      <li>Outputs PWM speed and direction signals to the L298N motor driver</li>
+      <li>Activates the wireless fail-safe if no packet is received for ~300 ms</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- L298N -->
+  <div class="block reveal" id="l298n">
+    <div class="block-label">// Motor Driver</div>
+    <h2>L298N Motor Driver</h2>
+    <p>
+      The L298N is a dual H-bridge motor driver that controls the left and right motor groups independently. The ESP32 sends PWM signals to ENA and ENB for speed control, and digital HIGH/LOW signals to IN1&#8211;IN4 for direction control.
+    </p>
+
+    <br>
+    <div class="block-label" style="margin-top:12px;">// ESP32 &#8594; L298N Connections</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>L298N Pin</th><th>ESP32 Pin</th><th>Function</th></tr></thead>
+        <tbody>
+          <tr><td class="mc">ENA</td><td class="mc">GPIO 25</td><td>Left motor speed (PWM)</td></tr>
+          <tr><td class="mc">IN1</td><td class="mc">GPIO 26</td><td>Left motor direction A</td></tr>
+          <tr><td class="mc">IN2</td><td class="mc">GPIO 27</td><td>Left motor direction B</td></tr>
+          <tr><td class="mc">IN3</td><td class="mc">GPIO 32</td><td>Right motor direction A</td></tr>
+          <tr><td class="mc">IN4</td><td class="mc">GPIO 33</td><td>Right motor direction B</td></tr>
+          <tr><td class="mc">ENB</td><td class="mc">GPIO 13</td><td>Right motor speed (PWM)</td></tr>
+          <tr><td class="mc">GND</td><td class="mc">GND</td><td>Common ground</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <br>
+    <div class="block-label" style="margin-top:20px;">// Motor Outputs</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>L298N Output</th><th>Connected To</th></tr></thead>
+        <tbody>
+          <tr><td class="mc">OUT1 + OUT2</td><td>Left motor group (2 &#xD7; DC motors, wired in parallel)</td></tr>
+          <tr><td class="mc">OUT3 + OUT4</td><td>Right motor group (2 &#xD7; DC motors, wired in parallel)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:16px;font-size:14px;color:var(--muted);">
+      The two motors on the left side are wired in parallel and treated as a single group. The same applies to the right side. This provides 4-wheel drive with independent left/right speed control for differential steering.
+    </p>
+  </div>
+
+  <!-- WIRING -->
+  <div class="block reveal" id="wiring">
+    <div class="block-label">// Connections</div>
+    <h2>Wiring</h2>
+
+    <div class="block-label" style="margin-bottom:8px;">Table 1 &#8212; Joystick</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>ESP32</th></tr></thead>
+        <tbody>
+          <tr><td class="mc">VCC</td><td class="mc">3.3V</td></tr>
+          <tr><td class="mc">GND</td><td class="mc">GND</td></tr>
+          <tr><td class="mc">VRX</td><td class="mc">GPIO 34</td></tr>
+          <tr><td class="mc">VRY</td><td class="mc">GPIO 35</td></tr>
+          <tr><td class="mc">SW</td><td class="mc">GPIO 27</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <br>
+    <div class="block-label" style="margin-top:20px;margin-bottom:8px;">Table 2 &#8212; L298N</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>L298N</th><th>ESP32</th></tr></thead>
+        <tbody>
+          <tr><td class="mc">ENA</td><td class="mc">GPIO 25</td></tr>
+          <tr><td class="mc">IN1</td><td class="mc">GPIO 26</td></tr>
+          <tr><td class="mc">IN2</td><td class="mc">GPIO 27</td></tr>
+          <tr><td class="mc">IN3</td><td class="mc">GPIO 32</td></tr>
+          <tr><td class="mc">IN4</td><td class="mc">GPIO 33</td></tr>
+          <tr><td class="mc">ENB</td><td class="mc">GPIO 13</td></tr>
+          <tr><td class="mc">GND</td><td class="mc">GND</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <br>
+    <div class="block-label" style="margin-top:20px;margin-bottom:8px;">Table 3 &#8212; Motors</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>L298N Output</th><th>Motor Group</th></tr></thead>
+        <tbody>
+          <tr><td class="mc">OUT1 + OUT2</td><td>Left motor group (2&#xD7; DC motors)</td></tr>
+          <tr><td class="mc">OUT3 + OUT4</td><td>Right motor group (2&#xD7; DC motors)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <br>
+    <div class="block-label" style="margin-top:20px;margin-bottom:12px;">// Connection Diagram</div>
+    <div class="wiring-vis">
+      <div><span class="wb">Joystick</span></div>
+      <div class="wl">VRX&#8594;GPIO34 &nbsp; VRY&#8594;GPIO35 &nbsp; SW&#8594;GPIO27 &nbsp; VCC&#8594;3.3V &nbsp; GND&#8594;GND</div>
+      <div>&#8595;</div>
+      <div><span class="wb">ESP32 Controller</span></div>
+      <div class="wl">&#8212;&#8212; Wi-Fi UDP &nbsp;&#xB7;&nbsp; SSID: RC_CAR &#8212;&#8212;</div>
+      <div>&#8595;</div>
+      <div><span class="wb">ESP32 Receiver (in car)</span></div>
+      <div class="wl">ENA&#8594;GPIO25 &nbsp; IN1&#8594;GPIO26 &nbsp; IN2&#8594;GPIO27 &nbsp; IN3&#8594;GPIO32 &nbsp; IN4&#8594;GPIO33 &nbsp; ENB&#8594;GPIO13</div>
+      <div>&#8595;</div>
+      <div><span class="wb">L298N Motor Driver</span></div>
+      <div style="display:flex;justify-content:center;gap:60px;margin-top:4px;">
+        <div><div>OUT1+OUT2</div><div>&#8595;</div><div><strong>Left Motors</strong></div></div>
+        <div><div>OUT3+OUT4</div><div>&#8595;</div><div><strong>Right Motors</strong></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CONTROL SYSTEM -->
+  <div class="block reveal">
+    <div class="block-label">// Input Mapping</div>
+    <h2>Control System</h2>
+    <p>The joystick provides two analog axes. The system uses differential steering &#8212; the left and right motor groups are driven at different speeds or reversed directions to achieve turning.</p>
+
+    <div class="joy-wrap">
+      <div class="joy-grid">
+        <div class="joy-cell"></div>
+        <div class="joy-cell ja"><div class="joy-arr">&#8593;</div>FORWARD</div>
+        <div class="joy-cell"></div>
+        <div class="joy-cell ja"><div class="joy-arr">&#8592;</div>LEFT</div>
+        <div class="joy-cell jc">STICK<br><span style="font-size:8px;opacity:.5">STOP</span></div>
+        <div class="joy-cell ja">RIGHT<div class="joy-arr">&#8594;</div></div>
+        <div class="joy-cell"></div>
+        <div class="joy-cell ja">REVERSE<div class="joy-arr">&#8595;</div></div>
+        <div class="joy-cell"></div>
+      </div>
+    </div>
+
+    <ul class="styled-list">
+      <li><strong>Forward:</strong> Both motor groups spin forward &#8212; car moves straight ahead</li>
+      <li><strong>Backward:</strong> Both motor groups reverse &#8212; car moves straight back</li>
+      <li><strong>Left:</strong> Right motors run faster / left motors slow down or reverse &#8212; car turns left</li>
+      <li><strong>Right:</strong> Left motors run faster / right motors slow down or reverse &#8212; car turns right</li>
+      <li><strong>Center (released):</strong> Dead zone detected &#8212; all motors stop</li>
+    </ul>
+  </div>
+
+  <!-- SOFTWARE -->
+  <div class="block reveal" id="software">
+    <div class="block-label">// Firmware Logic</div>
+    <h2>Software Architecture</h2>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-icon">&#128073;</div>
+        <div class="flow-title">Controller</div>
+        <div class="flow-desc">Read ADC &#8594; dead zone &#8594; pack data &#8594; send UDP</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">&#128225;</div>
+        <div class="flow-title">Transmission</div>
+        <div class="flow-desc">UDP packets sent continuously for low-latency control</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">&#128663;</div>
+        <div class="flow-title">Car</div>
+        <div class="flow-desc">Receive UDP &#8594; calculate speeds &#8594; drive L298N</div>
+      </div>
+    </div>
+
+    <br>
+    <ul class="styled-list">
+      <li>Read joystick ADC values from VRX (GPIO 34) and VRY (GPIO 35)</li>
+      <li>Determine joystick position relative to center point</li>
+      <li>Apply a dead zone around center to avoid motor drift at rest</li>
+      <li>Convert joystick X and Y into left and right motor speed/direction values</li>
+      <li>Send values to the car ESP32 as a UDP packet over Wi-Fi</li>
+      <li>Car ESP32 receives and decodes the packet</li>
+      <li>Set IN1&#8211;IN4 direction pins and ENA/ENB PWM duty cycle on L298N</li>
+      <li>Drive the four DC motors according to the calculated commands</li>
+      <li>If no packet received for ~300 ms, activate fail-safe and stop all motors</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FAIL-SAFE -->
+  <div class="block reveal" id="failsafe">
+    <div class="block-label">// Safety</div>
+    <h2>Wireless Fail-Safe</h2>
+
+    <div class="highlight-card card-warn">
+      <h3>&#9888; Wireless Fail-Safe</h3>
+      <p>
+        If the car ESP32 does not receive a control packet for approximately <strong>300 milliseconds</strong>, it automatically sets all motor outputs to zero, stopping the car immediately.
+      </p>
+      <br>
+      <p>
+        This software-level fail-safe is built into the car's firmware. It prevents the car from continuing to drive uncontrolled if the Wi-Fi connection drops, the controller is switched off, or the wireless link is interrupted for any reason. This is a DIY project feature, not a certified safety system.
+      </p>
+    </div>
+  </div>
+
+  <!-- POWER -->
+  <div class="block reveal" id="power">
+    <div class="block-label">// Electrical</div>
+    <h2>Power System</h2>
+    <p>
+      The battery supplies power to the L298N motor driver and the ESP32 receiver installed inside the car. The ESP32 and the L298N must share a common GND for the control signals to function correctly.
+    </p>
+    <br>
+    <table class="spec-table">
+      <tbody>
+        <tr><td>Battery Voltage</td><td class="mc">Not specified</td></tr>
+        <tr><td>Battery Capacity</td><td class="mc">Not specified</td></tr>
+        <tr><td>Motor Voltage</td><td class="mc">Not specified</td></tr>
+        <tr><td>Common GND</td><td>Required between ESP32 and L298N</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- BUILD PROCESS -->
+  <div class="block reveal" id="build">
+    <div class="block-label">// Development</div>
+    <h2>Build Process</h2>
+
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-num">01</div><div class="tl-body"><strong>Project Concept</strong> &#8212; Define goals, choose components, plan system architecture</div></div>
+      <div class="tl-item"><div class="tl-num">02</div><div class="tl-body"><strong>Chassis Preparation</strong> &#8212; Prepare and assemble the RC car chassis frame</div></div>
+      <div class="tl-item"><div class="tl-num">03</div><div class="tl-body"><strong>Motor Installation</strong> &#8212; Mount all four DC motors to the chassis</div></div>
+      <div class="tl-item"><div class="tl-num">04</div><div class="tl-body"><strong>Wheel Installation</strong> &#8212; Attach wheels to all four motor shafts</div></div>
+      <div class="tl-item"><div class="tl-num">05</div><div class="tl-body"><strong>L298N Installation</strong> &#8212; Mount and connect the motor driver board to the chassis</div></div>
+      <div class="tl-item"><div class="tl-num">06</div><div class="tl-body"><strong>ESP32 Controller Assembly</strong> &#8212; Build the handheld controller unit with the first ESP32</div></div>
+      <div class="tl-item"><div class="tl-num">07</div><div class="tl-body"><strong>Joystick Connection</strong> &#8212; Wire joystick module to the controller ESP32</div></div>
+      <div class="tl-item"><div class="tl-num">08</div><div class="tl-body"><strong>Wiring</strong> &#8212; Connect car ESP32 to L298N, motors, and power supply</div></div>
+      <div class="tl-item"><div class="tl-num">09</div><div class="tl-body"><strong>ESP32 Programming</strong> &#8212; Write and upload firmware for both ESP32 boards</div></div>
+      <div class="tl-item"><div class="tl-num">10</div><div class="tl-body"><strong>Wi-Fi Communication Test</strong> &#8212; Verify UDP link between controller and car</div></div>
+      <div class="tl-item"><div class="tl-num">11</div><div class="tl-body"><strong>Motor Testing</strong> &#8212; Test each motor group for correct direction and speed response</div></div>
+      <div class="tl-item"><div class="tl-num">12</div><div class="tl-body"><strong>Final Assembly</strong> &#8212; Secure all components, organize and route wiring</div></div>
+      <div class="tl-item"><div class="tl-num">13</div><div class="tl-body"><strong>Final Testing</strong> &#8212; Full system test: drive, steer, fail-safe verification</div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- GALLERY -->
+  <div class="block reveal" id="gallery">
+    <div class="block-label">// Photos</div>
+    <h2>Project Gallery</h2>
+
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g1').click()">
+          <input type="file" id="u_g1" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Completed RC Car">
+        </div>
+        <div class="gi-label">Completed RC Car</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g2').click()">
+          <input type="file" id="u_g2" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Chassis">
+        </div>
+        <div class="gi-label">Chassis</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g3').click()">
+          <input type="file" id="u_g3" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Motors">
+        </div>
+        <div class="gi-label">Motors</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g4').click()">
+          <input type="file" id="u_g4" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="L298N Driver">
+        </div>
+        <div class="gi-label">L298N Driver</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g5').click()">
+          <input type="file" id="u_g5" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="ESP32">
+        </div>
+        <div class="gi-label">ESP32</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g6').click()">
+          <input type="file" id="u_g6" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Joystick Controller">
+        </div>
+        <div class="gi-label">Joystick Controller</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g7').click()">
+          <input type="file" id="u_g7" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Wiring">
+        </div>
+        <div class="gi-label">Wiring</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g8').click()">
+          <input type="file" id="u_g8" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Electronics">
+        </div>
+        <div class="gi-label">Electronics</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g9').click()">
+          <input type="file" id="u_g9" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Testing">
+        </div>
+        <div class="gi-label">Testing</div>
+      </div>
+      <div class="gallery-item">
+        <div class="upload-wrap" onclick="document.getElementById('u_g10').click()">
+          <input type="file" id="u_g10" accept="image/*" style="display:none" onchange="loadImg(this)">
+          <div class="upload-ph"><div class="uph-icon">&#128247;</div></div>
+          <img class="u-img" src="" alt="Final Build">
+        </div>
+        <div class="gi-label">Final Build</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="block reveal">
+    <div class="block-label">// Demonstration</div>
+    <h2>Project Video</h2>
+
+    <div class="video-ph">
+      <div class="vph-icon">&#9654;</div>
+      <div class="vph-title">ESP32 Wi-Fi RC Car &#8212; Demonstration</div>
+      <div class="vph-sub">VIDEO PLACEHOLDER &#8212; PASTE YOUTUBE EMBED HERE</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SPECS -->
+  <div class="block reveal" id="specs">
+    <div class="block-label">// Technical Data</div>
+    <h2>Technical Specifications</h2>
+
+    <table class="spec-table">
+      <tbody>
+        <tr><td>Project</td><td>ESP32 Wi-Fi RC Car</td></tr>
+        <tr><td>Controller</td><td>ESP32</td></tr>
+        <tr><td>Receiver</td><td>ESP32</td></tr>
+        <tr><td>Wireless</td><td>Wi-Fi (IEEE 802.11)</td></tr>
+        <tr><td>Communication</td><td>UDP</td></tr>
+        <tr><td>Wi-Fi SSID</td><td class="mc">RC_CAR</td></tr>
+        <tr><td>Input</td><td>Joystick module (VRX + VRY + SW)</td></tr>
+        <tr><td>Motor Driver</td><td>L298N Dual H-Bridge</td></tr>
+        <tr><td>Motors</td><td>4 &#xD7; DC motors</td></tr>
+        <tr><td>Drive System</td><td>4-Wheel Drive</td></tr>
+        <tr><td>Steering</td><td>Differential steering</td></tr>
+        <tr><td>Fail-Safe</td><td>Auto stop after ~300 ms without control packet</td></tr>
+        <tr><td>Battery Voltage</td><td class="mc">Not specified</td></tr>
+        <tr><td>Battery Capacity</td><td class="mc">Not specified</td></tr>
+        <tr><td>Motor Voltage</td><td class="mc">Not specified</td></tr>
+        <tr><td>Maximum Range</td><td class="mc">Not specified</td></tr>
+        <tr><td>Maximum Speed</td><td class="mc">Not specified</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SOURCE CODE -->
+  <div class="block reveal" id="code">
+    <div class="block-label">// Firmware</div>
+    <h2>Source Code</h2>
+
+    <div class="code-tabs-nav">
+      <button class="ctab-btn active" onclick="switchTab('tab-ctrl',this)">Controller ESP32</button>
+      <button class="ctab-btn" onclick="switchTab('tab-car',this)">Car ESP32</button>
+    </div>
+
+    <div class="ctab-panel active" id="tab-ctrl">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">C++ / ESP32 &#8212; Controller</span>
+          <button class="copy-btn" id="copyCtrl">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <div class="code-ph" id="ctrlCode">
+          <div class="code-ph-icon">&#128193;</div>
+          <div class="code-ph-text">PASTE YOUR CONTROLLER CODE HERE</div>
+          <div class="code-ph-sub">Arduino IDE / ESP32 &#8212; Controller Firmware</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctab-panel" id="tab-car">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>
+          <span class="code-lang">C++ / ESP32 &#8212; Car Receiver</span>
+          <button class="copy-btn" id="copyCar">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <div class="code-ph" id="carCode">
+          <div class="code-ph-icon">&#128663;</div>
+          <div class="code-ph-text">PASTE YOUR CAR RECEIVER CODE HERE</div>
+          <div class="code-ph-sub">Arduino IDE / ESP32 &#8212; Car Firmware</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEMATIC IMAGES -->
+  <div class="project-image reveal" style="margin-top:32px;">
+    <div class="upload-wrap" onclick="document.getElementById('u_s1').click()">
+      <input type="file" id="u_s1" accept="image/*" style="display:none" onchange="loadImg(this)">
+      <div class="upload-ph">
+        <div class="uph-icon">&#128247;</div>
+        <div class="uph-lbl">Click to Upload</div>
+        <div class="uph-sub">Schematic / Wiring Diagram 1</div>
+      </div>
+      <img class="u-img" src="" alt="Schematic 1">
+    </div>
+  </div>
+
+  <div class="project-image reveal" style="margin-top:20px;">
+    <div class="upload-wrap" onclick="document.getElementById('u_s2').click()">
+      <input type="file" id="u_s2" accept="image/*" style="display:none" onchange="loadImg(this)">
+      <div class="upload-ph">
+        <div class="uph-icon">&#128247;</div>
+        <div class="uph-lbl">Click to Upload</div>
+        <div class="uph-sub">Schematic / Wiring Diagram 2</div>
+      </div>
+      <img class="u-img" src="" alt="Schematic 2">
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="block reveal">
+    <div class="block-label">// For Everyone</div>
+    <h2>Simple Explanations</h2>
+
+    <div class="explain-grid">
+      <div class="explain-card">
+        <h4>What is ESP32?</h4>
+        <p>The ESP32 is a small, low-cost microcontroller with built-in Wi-Fi and Bluetooth. It can read sensors, control motors, and communicate wirelessly &#8212; making it ideal for DIY electronics projects like this RC car.</p>
+      </div>
+      <div class="explain-card">
+        <h4>What is an L298N?</h4>
+        <p>The L298N is a motor driver chip. A microcontroller cannot supply enough current to drive DC motors directly. The L298N acts as an amplifier &#8212; it takes low-current signals from the ESP32 and uses them to control much higher motor currents.</p>
+      </div>
+      <div class="explain-card">
+        <h4>What is a joystick module?</h4>
+        <p>A joystick module is a small thumbstick that outputs two analog voltage values &#8212; one for the X axis (left/right) and one for the Y axis (forward/backward). The ESP32 reads these values and converts them into motor commands.</p>
+      </div>
+      <div class="explain-card">
+        <h4>How does Wi-Fi control work?</h4>
+        <p>The controller ESP32 creates a Wi-Fi network. The car ESP32 connects to it. The controller continuously sends small data packets over UDP containing the joystick position. The car receives the packets and drives its motors accordingly.</p>
+      </div>
+      <div class="explain-card">
+        <h4>How does differential steering work?</h4>
+        <p>Instead of a physical steering axle, this car turns by running the left and right motor groups at different speeds. To turn left, the right motors spin faster than the left. To turn right, the left motors spin faster. Sharp turns can even reverse one side.</p>
+      </div>
+      <div class="explain-card">
+        <h4>What happens if Wi-Fi disconnects?</h4>
+        <p>If the car does not receive a control packet for about 300 milliseconds, the firmware automatically stops all four motors. This prevents the car from continuing to move uncontrolled if the wireless connection is interrupted.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FUTURE -->
+  <div class="block reveal" id="future">
+    <div class="block-label">// Roadmap</div>
+    <h2>Future Improvements</h2>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">
+      The following features are <strong>not currently installed</strong>. They are possible future upgrades to this project.
+    </p>
+
+    <div class="two-col">
+      <div class="info-box green">
+        <h3>&#10003; Completed</h3>
+        <ul class="styled-list">
+          <li>Wi-Fi wireless control</li>
+          <li>Joystick input (X and Y axes)</li>
+          <li>4-wheel drive with L298N</li>
+          <li>Forward, reverse, left, right movement</li>
+          <li>Differential steering</li>
+          <li>UDP low-latency communication</li>
+          <li>Wireless fail-safe (~300 ms timeout)</li>
+          <li>DIY chassis with four DC motors</li>
+          <li>Two-ESP32 controller/receiver architecture</li>
+        </ul>
+      </div>
+      <div class="info-box purple">
+        <h3>&#8593; Planned / Future</h3>
+        <ul class="styled-list">
+          <li>Variable speed control via joystick analog range</li>
+          <li>Battery voltage telemetry</li>
+          <li>TFT display on the controller</li>
+          <li>FPV camera for first-person view</li>
+          <li>Distance sensors for obstacle avoidance</li>
+          <li>Improved motor driver</li>
+          <li>Remote battery monitoring</li>
+          <li>Advanced telemetry (speed, heading)</li>
+          <li>Web-based browser control interface</li>
+          <li>Smartphone app control</li>
+          <li>Autonomous driving features</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="block reveal">
+    <div class="block-label">// Conclusion</div>
+    <h2>Project Result</h2>
+
+    <div class="highlight-card card-ok">
+      <h3>&#10003; Project Completed</h3>
+      <p>
+        The project demonstrates a working wireless RC vehicle based on ESP32, Wi-Fi communication, joystick control, an L298N motor driver, and four DC motors. The system provides real-time differential steering control with a wireless fail-safe that automatically stops the motors if the connection is interrupted.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Aero<span>Tech</span>Project</div>
+  <div class="footer-social">
+    <a href="https://www.instagram.com/AeroTechProject" target="_blank" rel="noopener" aria-label="Instagram">
+      <img src="https://www.google.com/s2/favicons?sz=64&domain=instagram.com" alt="Instagram">
+    </a>
+    <a href="https://www.youtube.com/@AeroTechProject" target="_blank" rel="noopener" aria-label="YouTube">
+      <img src="https://www.google.com/s2/favicons?sz=64&domain=youtube.com" alt="YouTube">
+    </a>
+    <a href="https://www.tiktok.com/@AeroTechProject" target="_blank" rel="noopener" aria-label="TikTok">
+      <img src="https://www.google.com/s2/favicons?sz=64&domain=tiktok.com" alt="TikTok">
+    </a>
+    <a href="https://www.patreon.com/AeroTechProject" target="_blank" rel="noopener" aria-label="Patreon">
+      <img src="https://www.google.com/s2/favicons?sz=64&domain=patreon.com" alt="Patreon">
+    </a>
+  </div>
+</footer>
+
+<script>
+  // Upload image function
+  function loadImg(input) {
+    const wrap = input.parentElement;
+    const img = wrap.querySelector('.u-img');
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      img.src = e.target.result;
+      wrap.classList.add('has-img');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Code tab switching
+  function switchTab(id, btn) {
+    document.querySelectorAll('.ctab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.ctab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // Copy buttons
+  function makeCopy(btnId, targetId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      const txt = el.innerText || el.textContent || '';
+      navigator.clipboard.writeText(txt.trim()).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+        }, 2000);
+      });
+    });
+  }
+
+  makeCopy('copyCtrl', 'ctrlCode');
+  makeCopy('copyCar', 'carCode');
+
+  // Scroll reveal
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
