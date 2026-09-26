@@ -1055,41 +1055,27 @@
 </footer>
 
 <script>
-  // Code tab switching
-  function switchTab(id, btn) {
-    document.querySelectorAll('.ctab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.ctab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  // Copy buttons
-  function makeCopy(btnId, targetId) {
-    const btn = document.getElementById(btnId);
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      const el = document.getElementById(targetId);
-      if (!el) return;
-      const txt = el.innerText || el.textContent || '';
-      navigator.clipboard.writeText(txt.trim()).then(() => {
-        btn.classList.add('copied');
-        btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
-        setTimeout(() => {
-          btn.classList.remove('copied');
-          btn.innerHTML = '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
-        }, 2000);
-      });
+  // Copy button
+  const copyBtn = document.getElementById('copyBtn');
+  const codeContent = document.getElementById('codeContent');
+  copyBtn.addEventListener('click', () => {
+    const tmp = document.createElement('textarea');
+    tmp.innerHTML = codeContent.innerHTML;
+    navigator.clipboard.writeText(tmp.value).then(() => {
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Copied!`;
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
+      }, 2000);
     });
-  }
-
-  makeCopy('copyCtrl', 'ctrlCode');
-  makeCopy('copyCar', 'carCode');
+  });
 
   // Scroll reveal
-  const obs = new IntersectionObserver((entries) => {
+  const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.08 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
