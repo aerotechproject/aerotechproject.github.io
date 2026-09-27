@@ -234,19 +234,6 @@
   .tl-body:hover{border-color:var(--accent);}
   .tl-body strong{color:var(--text);}
 
-  /* GALLERY */
-  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
-    gap:12px;margin-top:8px;}
-  .gallery-item{aspect-ratio:4/3;background:var(--surface);border:1px dashed var(--border);
-    border-radius:var(--radius);overflow:hidden;position:relative;cursor:default;
-    transition:border-color .2s,transform .2s;}
-  .gallery-item:hover{border-color:var(--accent);transform:scale(1.02);}
-  .gallery-item img{width:100%;height:100%;object-fit:cover;display:block;
-    position:absolute;top:0;left:0;}
-  .gi-label{position:absolute;bottom:0;left:0;right:0;
-    background:rgba(0,0,0,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;
-    color:#fff;text-align:center;text-transform:uppercase;padding:6px 4px;}
 
   /* VIDEO */
   .video-wrap{position:relative;width:100%;aspect-ratio:16/9;
@@ -841,40 +828,7 @@
 
   <div class="divider"></div>
 
-  <!-- GALLERY -->
-  <div class="block reveal" id="gallery">
-    <h2>Project Gallery</h2>
-
-      <div class="gallery-item">
-        <img src="rc23_03_motors.jpg" alt="Motors">
-        <div class="gi-label">Motors</div>
-      </div>
-      <div class="gallery-item">
-        <img src="rc23_04_l298n.jpg" alt="L298N Driver">
-        <div class="gi-label">L298N Driver</div>
-      </div>
-      <div class="gallery-item">
-        <img src="rc23_05_esp32.jpg" alt="ESP32">
-        <div class="gi-label">ESP32</div>
-      </div>
-      <div class="gallery-item">
-        <img src="rc23_06_joystick.jpg" alt="Joystick Controller">
-        <div class="gi-label">Joystick Controller</div>
-      </div>
-      <div class="gallery-item">
-        <img src="rc-car-schematic.png" alt="Wiring">
-        <div class="gi-label">Wiring</div>
-      </div>
-      <div class="gallery-item">
-        <img src="rc23_08_electronics.jpg" alt="Electronics">
-        <div class="gi-label">Joystick</div>
-      </div>
-      <div class="gallery-item">
-        <img src="file_0000000072688210ab9e8b063cd385b2.png" alt="Final Build">
-        <div class="gi-label">Final Build</div>
-      </div>
-    </div>
-  </div>
+ 
 
   <!-- VIDEO -->
   <div class="block reveal">
