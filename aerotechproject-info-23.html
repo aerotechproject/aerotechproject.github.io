@@ -447,7 +447,7 @@
   </div>
 
   <div class="block reveal">
-    <div class="block-label">// Goals</div>
+    
     <h2>Objective</h2>
     <ul class="styled-list">
       <li>Build a functional Wi-Fi controlled 4-wheel drive RC car from scratch</li>
@@ -463,7 +463,7 @@
 
   <!-- FEATURES -->
   <div class="block reveal" id="features">
-    <div class="block-label">// Capabilities</div>
+    
     <h2>Main Features</h2>
     <div class="components-grid">
       <div class="component-card"><div class="component-icon">&#128246;</div><div class="component-name">Wi-Fi Control</div></div>
@@ -483,7 +483,7 @@
 
   <!-- HOW IT WORKS -->
   <div class="block reveal" id="how">
-    <div class="block-label">// System Architecture</div>
+    
     <h2>How It Works</h2>
 
     <div class="pipeline">
@@ -535,7 +535,6 @@
 
   <!-- CONTROLLER -->
   <div class="block reveal" id="controller">
-    <div class="block-label">// Transmitter</div>
     <h2>ESP32 Wireless Controller</h2>
     <p>
       The first ESP32 is the handheld transmitter. It reads the joystick position continuously and sends control packets to the car ESP32 over UDP through a dedicated Wi-Fi access point. VRX controls left/right steering, VRY controls forward/backward movement, and SW is the joystick push button.
@@ -591,7 +590,6 @@
 
   <!-- RECEIVER -->
   <div class="block reveal" id="receiver">
-    <div class="block-label">// Car ESP32</div>
     <h2>ESP32 Car Receiver</h2>
     <p>
       The second ESP32 is mounted inside the RC car chassis. It connects to the RC_CAR Wi-Fi network, receives UDP control packets from the controller, decodes the joystick values, calculates the required motor speeds and directions, and drives the L298N. If no packet is received within approximately 300 ms, it stops all motors automatically.
@@ -611,7 +609,6 @@
 
   <!-- L298N -->
   <div class="block reveal" id="l298n">
-    <div class="block-label">// Motor Driver</div>
     <h2>L298N Motor Driver</h2>
     <p>
       The L298N is a dual H-bridge motor driver that controls the left and right motor groups independently. The ESP32 sends PWM signals to ENA and ENB for speed control, and digital HIGH/LOW signals to IN1&#8211;IN4 for direction control.
@@ -653,7 +650,6 @@
 
   <!-- WIRING -->
   <div class="block reveal" id="wiring">
-    <div class="block-label">// Connections</div>
     <h2>Wiring</h2>
 
     <div class="block-label" style="margin-bottom:8px;">Table 1 &#8212; Joystick</div>
@@ -723,7 +719,6 @@
 
   <!-- CONTROL SYSTEM -->
   <div class="block reveal">
-    <div class="block-label">// Input Mapping</div>
     <h2>Control System</h2>
     <p>The joystick provides two analog axes. The system uses differential steering &#8212; the left and right motor groups are driven at different speeds or reversed directions to achieve turning.</p>
 
@@ -752,7 +747,6 @@
 
   <!-- SOFTWARE -->
   <div class="block reveal" id="software">
-    <div class="block-label">// Firmware Logic</div>
     <h2>Software Architecture</h2>
 
     <div class="flow">
@@ -791,7 +785,6 @@
 
   <!-- FAIL-SAFE -->
   <div class="block reveal" id="failsafe">
-    <div class="block-label">// Safety</div>
     <h2>Wireless Fail-Safe</h2>
 
     <div class="highlight-card card-warn">
@@ -808,7 +801,6 @@
 
   <!-- POWER -->
   <div class="block reveal" id="power">
-    <div class="block-label">// Electrical</div>
     <h2>Power System</h2>
     <p>
       The battery supplies power to the L298N motor driver and the ESP32 receiver installed inside the car. The ESP32 and the L298N must share a common GND for the control signals to function correctly.
@@ -828,7 +820,6 @@
 
   <!-- BUILD PROCESS -->
   <div class="block reveal" id="build">
-    <div class="block-label">// Development</div>
     <h2>Build Process</h2>
 
     <div class="timeline">
@@ -852,7 +843,6 @@
 
   <!-- GALLERY -->
   <div class="block reveal" id="gallery">
-    <div class="block-label">// Photos</div>
     <h2>Project Gallery</h2>
 
       <div class="gallery-item">
@@ -888,7 +878,6 @@
 
   <!-- VIDEO -->
   <div class="block reveal">
-    <div class="block-label">// Demonstration</div>
     <h2>Project Video</h2>
 
     <div class="video-wrap">
@@ -906,7 +895,6 @@
 
   <!-- SPECS -->
   <div class="block reveal" id="specs">
-    <div class="block-label">// Technical Data</div>
     <h2>Technical Specifications</h2>
 
     <table class="spec-table">
