@@ -948,7 +948,6 @@
 
   <!-- SOURCE CODE -->
   <div class="block reveal" id="code">
-    <div class="block-label">// Firmware</div>
     <h2>Source Code</h2>
 
     <div class="code-tabs-nav">
@@ -968,7 +967,54 @@
         </div>
         <div class="code-ph" id="ctrlCode">
           <div class="code-ph-icon">&#128193;</div>
-          <div class="code-ph-text">PASTE YOUR CONTROLLER CODE HERE</div>
+          <div class="code-ph-text">#include <WiFi.h>
+#include <WiFiUdp.h>
+
+const char* ssid = "RC_CAR";
+const char* password = "12345678";
+
+WiFiUDP udp;
+
+IPAddress carIP(192, 168, 4, 2);
+const int port = 4210;
+
+#define JOY_X 34
+#define JOY_Y 35
+#define JOY_SW 27
+
+struct ControlData {
+  int x;
+  int y;
+  int button;
+};
+
+ControlData data;
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(JOY_SW, INPUT_PULLUP);
+
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
+
+  Serial.println("RC Controller started");
+  Serial.print("Controller IP: ");
+  Serial.println(WiFi.softAPIP());
+}
+
+void loop() {
+
+  data.x = analogRead(JOY_X);
+  data.y = analogRead(JOY_Y);
+  data.button = digitalRead(JOY_SW);
+
+  udp.beginPacket(carIP, port);
+  udp.write((uint8_t*)&data, sizeof(data));
+  udp.endPacket();
+
+  delay(20);
+}</div>
           <div class="code-ph-sub">Arduino IDE / ESP32 &#8212; Controller Firmware</div>
         </div>
       </div>
@@ -986,7 +1032,186 @@
         </div>
         <div class="code-ph" id="carCode">
           <div class="code-ph-icon">&#128663;</div>
-          <div class="code-ph-text">PASTE YOUR CAR RECEIVER CODE HERE</div>
+          <div class="code-ph-text">#include <WiFi.h>
+#include <WiFiUdp.h>
+
+const char* ssid = "RC_CAR";
+const char* password = "12345678";
+
+WiFiUDP udp;
+
+const int port = 4210;
+
+// L298N
+#define ENA 25
+#define IN1 26
+#define IN2 27
+
+#define IN3 32
+#define IN4 33
+#define ENB 13
+
+struct ControlData {
+  int x;
+  int y;
+  int button;
+};
+
+ControlData data;
+
+unsigned long lastPacket = 0;
+
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+
+  pinMode(ENB, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  stopMotors();
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  Serial.print("Connecting");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(300);
+    Serial.print(".");
+  }
+
+  Serial.println();
+  Serial.println("Connected!");
+
+  // IP-и мошин
+  Serial.println(WiFi.localIP());
+
+  udp.begin(port);
+}
+
+void loop() {
+
+  int packetSize = udp.parsePacket();
+
+  if (packetSize >= sizeof(ControlData)) {
+
+    udp.read((uint8_t*)&data, sizeof(data));
+
+    lastPacket = millis();
+
+    controlCar();
+  }
+
+  // Агар сигнал гум шавад
+  if (millis() - lastPacket > 300) {
+    stopMotors();
+  }
+}
+
+void controlCar() {
+
+  int x = data.x;
+  int y = data.y;
+
+  const int center = 2048;
+  const int deadZone = 300;
+
+  // Dead zone
+  if (abs(x - center) < deadZone)
+    x = center;
+
+  if (abs(y - center) < deadZone)
+    y = center;
+
+  // Пеш / қафо
+  int forward = map(y, 0, 4095, 255, -255);
+
+  // Чап / рост
+  int turn = map(x, 0, 4095, -255, 255);
+
+  int leftMotor =
+      forward + turn;
+
+  int rightMotor =
+      forward - turn;
+
+  leftMotor = constrain(leftMotor, -255, 255);
+  rightMotor = constrain(rightMotor, -255, 255);
+
+  motorLeft(leftMotor);
+  motorRight(rightMotor);
+}
+
+void motorLeft(int speed) {
+
+  if (speed > 0) {
+
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+
+    analogWrite(ENA, speed);
+
+  }
+  else if (speed < 0) {
+
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+
+    analogWrite(ENA, -speed);
+
+  }
+  else {
+
+    analogWrite(ENA, 0);
+
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+  }
+}
+
+void motorRight(int speed) {
+
+  if (speed > 0) {
+
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+
+    analogWrite(ENB, speed);
+
+  }
+  else if (speed < 0) {
+
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+
+    analogWrite(ENB, -speed);
+
+  }
+  else {
+
+    analogWrite(ENB, 0);
+
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+  }
+}
+
+void stopMotors() {
+
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}</div>
           <div class="code-ph-sub">Arduino IDE / ESP32 &#8212; Car Firmware</div>
         </div>
       </div>
@@ -1004,7 +1229,6 @@
 
   <div class="divider"></div>
   <div class="block reveal">
-    <div class="block-label">// For Everyone</div>
     <h2>Simple Explanations</h2>
 
     <div class="explain-grid">
@@ -1039,7 +1263,6 @@
 
   <!-- FUTURE -->
   <div class="block reveal" id="future">
-    <div class="block-label">// Roadmap</div>
     <h2>Future Improvements</h2>
     <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">
       The following features are <strong>not currently installed</strong>. They are possible future upgrades to this project.
@@ -1060,28 +1283,11 @@
           <li>Two-ESP32 controller/receiver architecture</li>
         </ul>
       </div>
-      <div class="info-box purple">
-        <h3>&#8593; Planned / Future</h3>
-        <ul class="styled-list">
-          <li>Variable speed control via joystick analog range</li>
-          <li>Battery voltage telemetry</li>
-          <li>TFT display on the controller</li>
-          <li>FPV camera for first-person view</li>
-          <li>Distance sensors for obstacle avoidance</li>
-          <li>Improved motor driver</li>
-          <li>Remote battery monitoring</li>
-          <li>Advanced telemetry (speed, heading)</li>
-          <li>Web-based browser control interface</li>
-          <li>Smartphone app control</li>
-          <li>Autonomous driving features</li>
-        </ul>
-      </div>
     </div>
   </div>
 
   <!-- RESULT -->
   <div class="block reveal">
-    <div class="block-label">// Conclusion</div>
     <h2>Project Result</h2>
 
     <div class="highlight-card card-ok">
